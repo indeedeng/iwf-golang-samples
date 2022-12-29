@@ -42,3 +42,5 @@ _Note that by default this project will listen on 8803 port(default worker port 
     * State2 will send a signal and then finish as a "dead end"
 
 Then watch the workflow in Cadence or Temporal Web UI
+
+See [more samples in SDK integration tests](https://github.com/iworkflowio/iwf-golang-sdk/tree/main/integ) for how to interact with the clients.
