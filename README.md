@@ -6,14 +6,14 @@ against [iWF server](https://github.com/indeedeng/iwf)
 ## Setup
 
 1. Start a iWF server following the [instructions](https://github.com/indeedeng/iwf#how-to-run-this-server)
-2. Run this project by using gradle task `bootRun`.
+2. Run this project
+  * To build the binary, run `make bins` 
+  * To run the sample service: run `./iwf-samples start`
 
 _Note that by default this project will listen on 8803 port(default worker port for iWF Golang SDK)_
 
 ## How to Start sample workflow
 
-* To build the binary, run `make bins` 
-* To run the sample service: run `./iwf-samples start`
 
 1. [Basic IO workflow](https://github.com/iworkflowio/iwf-golang-samples/tree/main/workflows/basic):
    Open http://localhost:8803/basic/start in your browser. This workflow demonstrates:
@@ -23,8 +23,8 @@ _Note that by default this project will listen on 8803 port(default worker port 
    Open http://localhost:8803/persistence/start in your browser. This workflow demonstrates:
     * How to use data objects to share data across workflows
     * How to use search attributes to share data and also searching for workflows
-    * How to use record events API
-    * How to use StateLocal to pass data from start to decide API
+    * TODO: How to use record events API
+    * TODO: How to use StateLocal to pass data from start to decide API
 3. [Signal workflow](https://github.com/iworkflowio/iwf-golang-samples/tree/main/workflows/signal):
    Open http://localhost:8803/signal/start in your browser. This workflow demonstrates:
     * How to use signal
