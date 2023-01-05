@@ -4,6 +4,7 @@
 *.dll
 *.so
 *.dylib
+iwf-samples
 
 # Test binary, built with `go test -c`
 *.test
