@@ -21,7 +21,7 @@
 package main
 
 import (
-	"github.com/iworkflowio/iwf-golang-samples/cmd/server/iwf"
+	"github.com/indeedeng/iwf-golang-samples/cmd/server/iwf"
 	"os"
 )
 

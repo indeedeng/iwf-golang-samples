@@ -1,11 +1,11 @@
 package workflows
 
 import (
-	"github.com/iworkflowio/iwf-golang-samples/workflows/basic"
-	"github.com/iworkflowio/iwf-golang-samples/workflows/interstate"
-	"github.com/iworkflowio/iwf-golang-samples/workflows/persistence"
-	"github.com/iworkflowio/iwf-golang-samples/workflows/signal"
-	"github.com/iworkflowio/iwf-golang-samples/workflows/timer"
+	"github.com/indeedeng/iwf-golang-samples/workflows/basic"
+	"github.com/indeedeng/iwf-golang-samples/workflows/interstate"
+	"github.com/indeedeng/iwf-golang-samples/workflows/persistence"
+	"github.com/indeedeng/iwf-golang-samples/workflows/signal"
+	"github.com/indeedeng/iwf-golang-samples/workflows/timer"
 	"github.com/iworkflowio/iwf-golang-sdk/iwf"
 )
 

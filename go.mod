@@ -1,4 +1,4 @@
-module github.com/iworkflowio/iwf-golang-samples
+module github.com/indeedeng/iwf-golang-samples
 
 go 1.18
 
