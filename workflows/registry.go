@@ -6,7 +6,7 @@ import (
 	"github.com/indeedeng/iwf-golang-samples/workflows/persistence"
 	"github.com/indeedeng/iwf-golang-samples/workflows/signal"
 	"github.com/indeedeng/iwf-golang-samples/workflows/timer"
-	"github.com/iworkflowio/iwf-golang-sdk/iwf"
+	"github.com/indeedeng/iwf-golang-sdk/iwf"
 )
 
 var registry = iwf.NewRegistry()

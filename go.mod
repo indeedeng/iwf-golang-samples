@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/gin-gonic/gin v1.8.2
-	github.com/iworkflowio/iwf-golang-sdk v1.0.0
+	github.com/indeedeng/iwf-golang-sdk v1.0.1
 	github.com/urfave/cli v1.22.10
 )
 

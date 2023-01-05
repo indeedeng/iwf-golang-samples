@@ -1,6 +1,6 @@
 package basic
 
-import "github.com/iworkflowio/iwf-golang-sdk/iwf"
+import "github.com/indeedeng/iwf-golang-sdk/iwf"
 
 type BasicWorkflow struct{}
 
