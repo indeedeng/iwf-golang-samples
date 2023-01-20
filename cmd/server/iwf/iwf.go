@@ -102,7 +102,7 @@ func startWorkflowWorker() (closeFunc func()) {
 func startWorklfow(wf iwf.Workflow, startStateId string, input interface{}) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		wfId := "TestSample" + strconv.Itoa(int(time.Now().Unix()))
-		runId, err := client.StartWorkflow(c.Request.Context(), wf, startStateId, wfId, 3600, input, nil)
+		runId, err := client.StartWorkflow(c.Request.Context(), wf, wfId, 3600, input, nil)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, err)
 			return
