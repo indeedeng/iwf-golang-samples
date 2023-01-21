@@ -7,23 +7,25 @@ import (
 type SubscriptionWorkflow struct{}
 
 const (
-	keySubscriptionCancelled = "subscriptionCancelled"
-	keyBillingPeriodNum      = "billingPeriodNum"
-	keyCustomer              = "customer"
+	keyBillingPeriodNum = "billingPeriodNum"
+	keyCustomer         = "customer"
 
-	signalCancelSubscription = "cancelSubscription"
+	signalCancelSubscription              = "cancelSubscription"
+	signalUpdateBillingPeriodChargeAmount = "updateBillingPeriodChargeAmount"
 )
 
 func (b SubscriptionWorkflow) GetStates() []iwf.StateDef {
 	return []iwf.StateDef{
-		iwf.NewStartingState(&trialState{}),
+		iwf.NewStartingState(&initState{}),
 		iwf.NewNonStartingState(&cancelState{}),
+		iwf.NewNonStartingState(&updateBillingPeriodChargeAmountLoopState{}),
+		iwf.NewNonStartingState(&trialState{}),
+		iwf.NewNonStartingState(&chargeLoopState{}),
 	}
 }
 
 func (b SubscriptionWorkflow) GetPersistenceSchema() []iwf.PersistenceFieldDef {
 	return []iwf.PersistenceFieldDef{
-		iwf.NewDataObjectDef(keySubscriptionCancelled),
 		iwf.NewDataObjectDef(keyBillingPeriodNum),
 		iwf.NewDataObjectDef(keyCustomer),
 	}
@@ -32,6 +34,7 @@ func (b SubscriptionWorkflow) GetPersistenceSchema() []iwf.PersistenceFieldDef {
 func (b SubscriptionWorkflow) GetCommunicationSchema() []iwf.CommunicationMethodDef {
 	return []iwf.CommunicationMethodDef{
 		iwf.NewSignalChannelDef(signalCancelSubscription),
+		iwf.NewSignalChannelDef(signalUpdateBillingPeriodChargeAmount),
 	}
 }
 
