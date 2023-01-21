@@ -66,15 +66,6 @@ func (b chargeLoopState) Decide(ctx iwf.WorkflowContext, input iwf.Object, comma
 		return iwf.ForceCompletingWorkflow, nil
 	}
 
-	var subCanceled bool
-	err = persistence.GetDataObject(keySubscriptionCancelled, &subCanceled)
-	if err != nil {
-		return nil, err
-	}
-	if subCanceled {
-		return iwf.GracefulCompletingWorkflow, nil
-	}
-
 	fmt.Printf("this is an RPC call to charge customer %v for $%v \n", customer.Email, customer.Subscription.BillingPeriodCharge)
 
 	return iwf.SingleNextState(ChargeLoopStateId, nil), nil

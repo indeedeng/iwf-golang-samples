@@ -15,30 +15,32 @@ _Note that by default this project will listen on 8803 port(default worker port 
 ## Sample workflows
 
 1. [Subscription workflow](https://github.com/indeedeng/iwf-golang-samples/tree/main/workflows/subscription):
-   * https://github.com/temporalio/subscription-workflow-project-template-go
-   * This is to match https://learn.temporal.io/tutorials/typescript/subscriptions/ 
-   * https://github.com/temporalio/subscription-workflow-project-template-java
+   This subscription workflow is to match the use case described in
+* [Temporal TypeScript tutorials](https://learn.temporal.io/tutorials/typescript/subscriptions/)
+* [Temporal go sample](https://github.com/temporalio/subscription-workflow-project-template-go)
+* [Temporal Java Sample](https://github.com/temporalio/subscription-workflow-project-template-java)
+* [Cadence Java example](https://cadenceworkflow.io/docs/concepts/workflows/#example)
 
-1. [Basic IO workflow](https://github.com/indeedeng/iwf-golang-samples/tree/main/workflows/basic):
+2. [Basic IO workflow](https://github.com/indeedeng/iwf-golang-samples/tree/main/workflows/basic):
    Open http://localhost:8803/basic/start in your browser. This workflow demonstrates:
     * How to start workflow with input and get output
     * How to pass input from a state to a next state
-2. [Persistence workflow](https://github.com/indeedeng/iwf-golang-samples/tree/main/workflows/persistence):
+3. [Persistence workflow](https://github.com/indeedeng/iwf-golang-samples/tree/main/workflows/persistence):
    Open http://localhost:8803/persistence/start in your browser. This workflow demonstrates:
     * How to use data objects to share data across workflows
     * How to use search attributes to share data and also searching for workflows
     * How to use record events API
     * How to use StateLocal to pass data from start to decide API
-3. [Signal workflow](https://github.com/indeedeng/iwf-golang-samples/tree/main/workflows/signal):
+4. [Signal workflow](https://github.com/indeedeng/iwf-golang-samples/tree/main/workflows/signal):
    Open http://localhost:8803/signal/start in your browser. This workflow demonstrates:
     * How to use signal
     * How to use AnyCommandCompleted trigger type
     * State1 start API will wait for two signals, when any of them is received, the decide API is trigger
-4. [Timer workflow](https://github.com/indeedeng/iwf-golang-samples/tree/main/workflows/timer):
+5. [Timer workflow](https://github.com/indeedeng/iwf-golang-samples/tree/main/workflows/timer):
    Open http://localhost:8803/timer/start in your browser. This workflow demonstrates:
     * How to use a durable timer
     * State1 start API will wait for a timer, when timer fires, the decide API is trigger
-5. [InterstateChannel workflow](https://github.com/indeedeng/iwf-golang-samples/tree/main/workflows/interstate):
+6. [InterstateChannel workflow](https://github.com/indeedeng/iwf-golang-samples/tree/main/workflows/interstate):
    Open http://localhost:8803/interstateChannel/start in your browser. This workflow demonstrates:
     * How to use interstate channel to synchronize multi threading/in parallel workflow execution
     * State0 will go to State1 and State2

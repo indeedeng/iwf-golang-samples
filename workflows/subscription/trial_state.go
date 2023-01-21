@@ -9,23 +9,15 @@ import (
 
 type trialState struct{}
 
-const TrialStateId = "trialState"
+const trialStateId = "trialState"
 
 func (b trialState) GetStateId() string {
-	return TrialStateId
+	return trialStateId
 }
 
 func (b trialState) Start(ctx iwf.WorkflowContext, input iwf.Object, persistence iwf.Persistence, communication iwf.Communication) (*iwf.CommandRequest, error) {
 	var customer Customer
-	err := input.Get(&customer)
-	if err != nil {
-		return nil, err
-	}
-	err = persistence.SetDataObject(keyCustomer, customer)
-	if err != nil {
-		return nil, err
-	}
-	err = persistence.SetDataObject(keySubscriptionCancelled, false)
+	err := persistence.GetDataObject(keyCustomer, &customer)
 	if err != nil {
 		return nil, err
 	}
@@ -40,19 +32,9 @@ func (b trialState) Start(ctx iwf.WorkflowContext, input iwf.Object, persistence
 
 func (b trialState) Decide(ctx iwf.WorkflowContext, input iwf.Object, commandResults iwf.CommandResults, persistence iwf.Persistence, communication iwf.Communication) (*iwf.StateDecision, error) {
 	var customer Customer
-	err := input.Get(&customer)
+	err := persistence.GetDataObject(keyCustomer, &customer)
 	if err != nil {
 		return nil, err
-	}
-
-	var subCanceled bool
-	err = persistence.GetDataObject(keySubscriptionCancelled, &subCanceled)
-	if err != nil {
-		return nil, err
-	}
-	if subCanceled {
-		// send cancel email
-		fmt.Println("this is an RPC call to send an cancel email to ", customer.FirstName, customer.LastName, customer.Email)
 	}
 
 	err = persistence.SetDataObject(keyBillingPeriodNum, 0)
