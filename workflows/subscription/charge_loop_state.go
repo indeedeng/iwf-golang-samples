@@ -19,7 +19,7 @@ func (b chargeLoopState) GetStateId() string {
 
 func (b chargeLoopState) Start(ctx iwf.WorkflowContext, input iwf.Object, persistence iwf.Persistence, communication iwf.Communication) (*iwf.CommandRequest, error) {
 	var customer Customer
-	err := input.Get(&customer)
+	err := persistence.GetDataObject(keyCustomer, &customer)
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +50,7 @@ func (b chargeLoopState) Start(ctx iwf.WorkflowContext, input iwf.Object, persis
 
 func (b chargeLoopState) Decide(ctx iwf.WorkflowContext, input iwf.Object, commandResults iwf.CommandResults, persistence iwf.Persistence, communication iwf.Communication) (*iwf.StateDecision, error) {
 	var customer Customer
-	err := input.Get(&customer)
+	err := persistence.GetDataObject(keyCustomer, &customer)
 	if err != nil {
 		return nil, err
 	}

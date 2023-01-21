@@ -28,6 +28,7 @@ import (
 	"github.com/indeedeng/iwf-golang-samples/workflows/interstate"
 	"github.com/indeedeng/iwf-golang-samples/workflows/persistence"
 	"github.com/indeedeng/iwf-golang-samples/workflows/signal"
+	"github.com/indeedeng/iwf-golang-samples/workflows/subscription"
 	"github.com/indeedeng/iwf-golang-samples/workflows/timer"
 	"github.com/indeedeng/iwf-golang-sdk/gen/iwfidl"
 	"github.com/indeedeng/iwf-golang-sdk/iwf"
@@ -75,17 +76,33 @@ func startWorkflowWorker() (closeFunc func()) {
 	router.POST(iwf.WorkflowStateStartApi, apiV1WorkflowStateStart)
 	router.POST(iwf.WorkflowStateDecideApi, apiV1WorkflowStateDecide)
 
-	input := persistence.ExampleDataObjectModel{
+	persInput := persistence.ExampleDataObjectModel{
 		IntValue: time.Now().UnixNano(),
 		StrValue: "same string for test",
 		Datetime: time.Now(),
 	}
 
-	router.GET("/basic/start", startWorklfow(&basic.BasicWorkflow{}, basic.BasicWorkflowState1Id, 1))
-	router.GET("/interstateChannel/start", startWorklfow(&interstate.InterStateWorkflow{}, interstate.InterStateWorkflowState0Id, nil))
-	router.GET("/persistence/start", startWorklfow(&persistence.PersistenceWorkflow{}, persistence.PersistenceWorkflowState1Id, input))
-	router.GET("/signal/start", startWorklfow(&signal.SignalWorkflow{}, signal.SignalWorkflowState1Id, nil))
-	router.GET("/timer/start", startWorklfow(&timer.TimerWorkflow{}, timer.TimerWorkflowState1Id, 5))
+	customer := subscription.Customer{
+		FirstName: "Quanzheng",
+		LastName:  "Long",
+		Id:        "qlong",
+		Email:     "qlong.seattle@gmail.com",
+		Subscription: subscription.Subscription{
+			TrialPeriod:         time.Second * 20,
+			BillingPeriod:       time.Second * 10,
+			MaxBillingPeriods:   10,
+			BillingPeriodCharge: 100,
+		},
+	}
+
+	router.GET("/basic/start", startWorklfow(&basic.BasicWorkflow{}, 1))
+	router.GET("/interstateChannel/start", startWorklfow(&interstate.InterStateWorkflow{}, nil))
+	router.GET("/persistence/start", startWorklfow(&persistence.PersistenceWorkflow{}, persInput))
+	router.GET("/signal/start", startWorklfow(&signal.SignalWorkflow{}, nil))
+	router.GET("/timer/start", startWorklfow(&timer.TimerWorkflow{}, 5))
+	router.GET("/subscription/start", startWorklfow(&subscription.SubscriptionWorkflow{}, customer))
+	router.GET("/subscription/cancel", cancelSubscription)
+	router.GET("/subscription/updateChargeAmount", updateSubscriptionChargeAmount)
 
 	wfServer := &http.Server{
 		Addr:    ":" + iwf.DefaultWorkerPort,
@@ -99,17 +116,48 @@ func startWorkflowWorker() (closeFunc func()) {
 	return func() { wfServer.Close() }
 }
 
-func startWorklfow(wf iwf.Workflow, startStateId string, input interface{}) gin.HandlerFunc {
+func startWorklfow(wf iwf.Workflow, input interface{}) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		wfId := "TestSample" + strconv.Itoa(int(time.Now().Unix()))
 		runId, err := client.StartWorkflow(c.Request.Context(), wf, wfId, 3600, input, nil)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, err)
+			c.JSON(http.StatusInternalServerError, err.Error())
 			return
 		}
 		c.JSON(http.StatusOK, fmt.Sprintf("workflowId: %v runId: %v", wfId, runId))
 		return
 	}
+}
+
+func cancelSubscription(c *gin.Context) {
+	wfId := c.Query("workflowId")
+	if wfId != "" {
+		err := client.SignalWorkflow(c.Request.Context(), &subscription.SubscriptionWorkflow{}, wfId, "", subscription.SignalCancelSubscription, nil)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, err.Error())
+		} else {
+			c.JSON(http.StatusOK, struct{}{})
+		}
+		return
+	}
+	c.JSON(http.StatusBadRequest, "must provide workflowId via URL parameter")
+}
+
+func updateSubscriptionChargeAmount(c *gin.Context) {
+	wfId := c.Query("workflowId")
+	newChargeAmountStr := c.Query("newChargeAmount")
+	newAmount, err := strconv.Atoi(newChargeAmountStr)
+
+	if wfId != "" && err == nil {
+		err := client.SignalWorkflow(c.Request.Context(), &subscription.SubscriptionWorkflow{}, wfId, "", subscription.SignalUpdateBillingPeriodChargeAmount, newAmount)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, iwf.GetOpenApiErrorBody(err))
+		} else {
+			c.JSON(http.StatusOK, struct{}{})
+		}
+		return
+	}
+	c.JSON(http.StatusBadRequest, "must provide correct workflowId and newChargeAmount via URL parameter")
 }
 
 func apiV1WorkflowStateStart(c *gin.Context) {

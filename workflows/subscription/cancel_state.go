@@ -16,7 +16,7 @@ func (b cancelState) GetStateId() string {
 
 func (b cancelState) Start(ctx iwf.WorkflowContext, input iwf.Object, persistence iwf.Persistence, communication iwf.Communication) (*iwf.CommandRequest, error) {
 	return iwf.AllCommandsCompletedRequest(
-		iwf.NewSignalCommand("", signalCancelSubscription),
+		iwf.NewSignalCommand("", SignalCancelSubscription),
 	), nil
 }
 

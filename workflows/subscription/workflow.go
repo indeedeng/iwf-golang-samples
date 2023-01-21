@@ -10,8 +10,8 @@ const (
 	keyBillingPeriodNum = "billingPeriodNum"
 	keyCustomer         = "customer"
 
-	signalCancelSubscription              = "cancelSubscription"
-	signalUpdateBillingPeriodChargeAmount = "updateBillingPeriodChargeAmount"
+	SignalCancelSubscription              = "cancelSubscription"
+	SignalUpdateBillingPeriodChargeAmount = "updateBillingPeriodChargeAmount"
 )
 
 func (b SubscriptionWorkflow) GetStates() []iwf.StateDef {
@@ -33,8 +33,8 @@ func (b SubscriptionWorkflow) GetPersistenceSchema() []iwf.PersistenceFieldDef {
 
 func (b SubscriptionWorkflow) GetCommunicationSchema() []iwf.CommunicationMethodDef {
 	return []iwf.CommunicationMethodDef{
-		iwf.NewSignalChannelDef(signalCancelSubscription),
-		iwf.NewSignalChannelDef(signalUpdateBillingPeriodChargeAmount),
+		iwf.NewSignalChannelDef(SignalCancelSubscription),
+		iwf.NewSignalChannelDef(SignalUpdateBillingPeriodChargeAmount),
 	}
 }
 

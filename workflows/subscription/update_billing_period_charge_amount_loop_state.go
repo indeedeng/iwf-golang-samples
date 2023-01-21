@@ -15,7 +15,7 @@ func (b updateBillingPeriodChargeAmountLoopState) GetStateId() string {
 
 func (b updateBillingPeriodChargeAmountLoopState) Start(ctx iwf.WorkflowContext, input iwf.Object, persistence iwf.Persistence, communication iwf.Communication) (*iwf.CommandRequest, error) {
 	return iwf.AllCommandsCompletedRequest(
-		iwf.NewSignalCommand("", signalUpdateBillingPeriodChargeAmount),
+		iwf.NewSignalCommand("", SignalUpdateBillingPeriodChargeAmount),
 	), nil
 }
 
@@ -27,7 +27,7 @@ func (b updateBillingPeriodChargeAmountLoopState) Decide(ctx iwf.WorkflowContext
 	}
 
 	var newAmount int
-	err = commandResults.GetSignalCommandResultByChannel(signalUpdateBillingPeriodChargeAmount).SignalValue.Get(&newAmount)
+	err = commandResults.GetSignalCommandResultByChannel(SignalUpdateBillingPeriodChargeAmount).SignalValue.Get(&newAmount)
 	if err != nil {
 		return nil, err
 	}
