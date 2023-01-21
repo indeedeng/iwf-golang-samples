@@ -36,7 +36,8 @@ To cancel the subscription:
 * Open http://localhost:8803/subscription/cancel?workflowId=<TheWorkflowId>
 
 ## iWF feature samples
-1[Basic IO workflow](https://github.com/indeedeng/iwf-golang-samples/tree/main/workflows/basic):
+
+1. [Basic IO workflow](https://github.com/indeedeng/iwf-golang-samples/tree/main/workflows/basic):
    Open http://localhost:8803/basic/start in your browser. This workflow demonstrates:
     * How to start workflow with input and get output
     * How to pass input from a state to a next state
