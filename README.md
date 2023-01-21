@@ -14,7 +14,8 @@ _Note that by default this project will listen on 8803 port(default worker port 
 
 ## Sample workflows
 
-1. [Subscription workflow](https://github.com/indeedeng/iwf-golang-samples/tree/main/workflows/subscription):
+1. [Subscription workflow](https://github.com/indeedeng/iwf-golang-samples/tree/main/workflows/subscription)
+
    This subscription workflow is to match the use case described in
 * [Temporal TypeScript tutorials](https://learn.temporal.io/tutorials/typescript/subscriptions/)
 * [Temporal go sample](https://github.com/temporalio/subscription-workflow-project-template-go)
