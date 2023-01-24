@@ -2,25 +2,17 @@ package subscription
 
 import (
 	"fmt"
-	"github.com/indeedeng/iwf-golang-sdk/gen/iwfidl"
 	"github.com/indeedeng/iwf-golang-sdk/iwf"
 	"time"
 )
 
-type trialState struct{}
-
-const trialStateId = "trialState"
-
-func (b trialState) GetStateId() string {
-	return trialStateId
+type trialState struct {
+	iwf.DefaultStateIdAndOptions
 }
 
 func (b trialState) Start(ctx iwf.WorkflowContext, input iwf.Object, persistence iwf.Persistence, communication iwf.Communication) (*iwf.CommandRequest, error) {
 	var customer Customer
-	err := persistence.GetDataObject(keyCustomer, &customer)
-	if err != nil {
-		return nil, err
-	}
+	persistence.GetDataObject(keyCustomer, &customer)
 
 	// send welcome email
 	fmt.Println("this is an RPC call to send an welcome email to ", customer.FirstName, customer.LastName, customer.Email)
@@ -32,18 +24,8 @@ func (b trialState) Start(ctx iwf.WorkflowContext, input iwf.Object, persistence
 
 func (b trialState) Decide(ctx iwf.WorkflowContext, input iwf.Object, commandResults iwf.CommandResults, persistence iwf.Persistence, communication iwf.Communication) (*iwf.StateDecision, error) {
 	var customer Customer
-	err := persistence.GetDataObject(keyCustomer, &customer)
-	if err != nil {
-		return nil, err
-	}
+	persistence.GetDataObject(keyCustomer, &customer)
 
-	err = persistence.SetDataObject(keyBillingPeriodNum, 0)
-	if err != nil {
-		return nil, err
-	}
-	return iwf.SingleNextState(ChargeLoopStateId, nil), nil
-}
-
-func (b trialState) GetStateOptions() *iwfidl.WorkflowStateOptions {
-	return nil
+	persistence.SetDataObject(keyBillingPeriodNum, 0)
+	return iwf.SingleNextState(chargeLoopState{}, nil), nil
 }

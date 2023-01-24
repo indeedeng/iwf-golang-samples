@@ -2,22 +2,14 @@ package timer
 
 import "github.com/indeedeng/iwf-golang-sdk/iwf"
 
-type TimerWorkflow struct{}
+type TimerWorkflow struct {
+	iwf.EmptyCommunicationSchema
+	iwf.EmptyPersistenceSchema
+	iwf.DefaultWorkflowType
+}
 
 func (b TimerWorkflow) GetStates() []iwf.StateDef {
 	return []iwf.StateDef{
-		iwf.NewStartingState(&timerWorkflowState1{}),
+		iwf.StartingStateDef(&timerWorkflowState1{}),
 	}
-}
-
-func (b TimerWorkflow) GetPersistenceSchema() []iwf.PersistenceFieldDef {
-	return nil
-}
-
-func (b TimerWorkflow) GetCommunicationSchema() []iwf.CommunicationMethodDef {
-	return nil
-}
-
-func (b TimerWorkflow) GetWorkflowType() string {
-	return ""
 }
