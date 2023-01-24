@@ -1,16 +1,11 @@
 package subscription
 
 import (
-	"github.com/indeedeng/iwf-golang-sdk/gen/iwfidl"
 	"github.com/indeedeng/iwf-golang-sdk/iwf"
 )
 
-type updateBillingPeriodChargeAmountLoopState struct{}
-
-const updateBillingPeriodChargeAmountLoopStateId = "updateBillingPeriodChargeAmountLoopState"
-
-func (b updateBillingPeriodChargeAmountLoopState) GetStateId() string {
-	return updateBillingPeriodChargeAmountLoopStateId
+type updateBillingPeriodChargeAmountLoopState struct {
+	iwf.DefaultStateIdAndOptions
 }
 
 func (b updateBillingPeriodChargeAmountLoopState) Start(ctx iwf.WorkflowContext, input iwf.Object, persistence iwf.Persistence, communication iwf.Communication) (*iwf.CommandRequest, error) {
@@ -21,26 +16,13 @@ func (b updateBillingPeriodChargeAmountLoopState) Start(ctx iwf.WorkflowContext,
 
 func (b updateBillingPeriodChargeAmountLoopState) Decide(ctx iwf.WorkflowContext, input iwf.Object, commandResults iwf.CommandResults, persistence iwf.Persistence, communication iwf.Communication) (*iwf.StateDecision, error) {
 	var customer Customer
-	err := persistence.GetDataObject(keyCustomer, &customer)
-	if err != nil {
-		return nil, err
-	}
+	persistence.GetDataObject(keyCustomer, &customer)
 
 	var newAmount int
-	err = commandResults.GetSignalCommandResultByChannel(SignalUpdateBillingPeriodChargeAmount).SignalValue.Get(&newAmount)
-	if err != nil {
-		return nil, err
-	}
+	commandResults.GetSignalCommandResultByChannel(SignalUpdateBillingPeriodChargeAmount).SignalValue.Get(&newAmount)
 
 	customer.Subscription.BillingPeriodCharge = newAmount
-	err = persistence.SetDataObject(keyCustomer, customer)
-	if err != nil {
-		return nil, err
-	}
+	persistence.SetDataObject(keyCustomer, customer)
 
-	return iwf.SingleNextState(updateBillingPeriodChargeAmountLoopStateId, nil), nil
-}
-
-func (b updateBillingPeriodChargeAmountLoopState) GetStateOptions() *iwfidl.WorkflowStateOptions {
-	return nil
+	return iwf.SingleNextState(updateBillingPeriodChargeAmountLoopState{}, nil), nil
 }

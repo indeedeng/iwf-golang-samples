@@ -5,7 +5,10 @@ import (
 	"github.com/indeedeng/iwf-golang-sdk/iwf"
 )
 
-type PersistenceWorkflow struct{}
+type PersistenceWorkflow struct {
+	iwf.EmptyCommunicationSchema
+	iwf.DefaultWorkflowType
+}
 
 const (
 	testDataObjectKey = "test-data-object"
@@ -20,27 +23,19 @@ const (
 
 func (b PersistenceWorkflow) GetStates() []iwf.StateDef {
 	return []iwf.StateDef{
-		iwf.NewStartingState(&persistenceWorkflowState1{}),
-		iwf.NewNonStartingState(&persistenceWorkflowState2{}),
+		iwf.StartingStateDef(&persistenceWorkflowState1{}),
+		iwf.NonStartingStateDef(&persistenceWorkflowState2{}),
 	}
 }
 
 func (b PersistenceWorkflow) GetPersistenceSchema() []iwf.PersistenceFieldDef {
 	return []iwf.PersistenceFieldDef{
-		iwf.NewDataObjectDef(testDataObjectKey),
-		iwf.NewSearchAttributeDef(testSearchAttributeInt, iwfidl.INT),
-		iwf.NewSearchAttributeDef(testSearchAttributeDatetime, iwfidl.DATETIME),
-		iwf.NewSearchAttributeDef(testSearchAttributeBool, iwfidl.BOOL),
-		iwf.NewSearchAttributeDef(testSearchAttributeDouble, iwfidl.DOUBLE),
-		iwf.NewSearchAttributeDef(testSearchAttributeText, iwfidl.TEXT),
-		iwf.NewSearchAttributeDef(testSearchAttributeKeyword, iwfidl.KEYWORD),
+		iwf.DataObjectDef(testDataObjectKey),
+		iwf.SearchAttributeDef(testSearchAttributeInt, iwfidl.INT),
+		iwf.SearchAttributeDef(testSearchAttributeDatetime, iwfidl.DATETIME),
+		iwf.SearchAttributeDef(testSearchAttributeBool, iwfidl.BOOL),
+		iwf.SearchAttributeDef(testSearchAttributeDouble, iwfidl.DOUBLE),
+		iwf.SearchAttributeDef(testSearchAttributeText, iwfidl.TEXT),
+		iwf.SearchAttributeDef(testSearchAttributeKeyword, iwfidl.KEYWORD),
 	}
-}
-
-func (b PersistenceWorkflow) GetCommunicationSchema() []iwf.CommunicationMethodDef {
-	return nil
-}
-
-func (b PersistenceWorkflow) GetWorkflowType() string {
-	return ""
 }
