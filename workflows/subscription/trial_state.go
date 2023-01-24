@@ -23,9 +23,6 @@ func (b trialState) Start(ctx iwf.WorkflowContext, input iwf.Object, persistence
 }
 
 func (b trialState) Decide(ctx iwf.WorkflowContext, input iwf.Object, commandResults iwf.CommandResults, persistence iwf.Persistence, communication iwf.Communication) (*iwf.StateDecision, error) {
-	var customer Customer
-	persistence.GetDataObject(keyCustomer, &customer)
-
 	persistence.SetDataObject(keyBillingPeriodNum, 0)
 	return iwf.SingleNextState(chargeLoopState{}, nil), nil
 }
