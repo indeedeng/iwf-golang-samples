@@ -35,6 +35,8 @@ To update the period charge amount :
 To cancel the subscription:
 * Open http://localhost:8803/subscription/cancel?workflowId=<TheWorkflowId>
 
+It's recommended to use a iWF state diagram to visualize the workflow design like this:
+
 ## iWF feature samples
 
 1. [Basic IO workflow](https://github.com/indeedeng/iwf-golang-samples/tree/main/workflows/basic):
