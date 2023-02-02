@@ -16,3 +16,6 @@ To update the period charge amount :
 
 To cancel the subscription:
 * Open http://localhost:8803/subscription/cancel?workflowId=<TheWorkflowId>
+
+It's recommended to use a iWF state diagram to visualize the workflow design like this:
+![Subscription workflow iWF state diagram](https://user-images.githubusercontent.com/4523955/216396635-1c46df3c-e087-415a-996e-16ce47e7ccb2.png)
