@@ -8,6 +8,14 @@ import (
 
 type SubscriptionWorkflow struct {
 	iwf.DefaultWorkflowType
+
+	svc MyService
+}
+
+func NewSubscriptionWorkflow(svc MyService) *SubscriptionWorkflow {
+	return &SubscriptionWorkflow{
+		svc: svc,
+	}
 }
 
 const (
@@ -20,11 +28,11 @@ const (
 
 func (b SubscriptionWorkflow) GetStates() []iwf.StateDef {
 	return []iwf.StateDef{
-		iwf.StartingStateDef(&initState{}),
-		iwf.NonStartingStateDef(&trialState{}),
-		iwf.NonStartingStateDef(&chargeCurrentBillState{}),
-		iwf.NonStartingStateDef(&cancelState{}),
-		iwf.NonStartingStateDef(&updateChargeAmountState{}),
+		iwf.StartingStateDef(NewInitState()),
+		iwf.NonStartingStateDef(NewTriageState(b.svc)),
+		iwf.NonStartingStateDef(NewChargeCurrentBillState(b.svc)),
+		iwf.NonStartingStateDef(NewCancelState(b.svc)),
+		iwf.NonStartingStateDef(NewUpdateChargeAmountState()),
 	}
 }
 
@@ -57,6 +65,10 @@ type Customer struct {
 	Subscription Subscription
 }
 
+func NewInitState() iwf.WorkflowState {
+	return initState{}
+}
+
 type initState struct {
 	iwf.DefaultStateIdAndOptions
 }
@@ -72,8 +84,15 @@ func (b initState) Decide(ctx iwf.WorkflowContext, input iwf.Object, commandResu
 	return iwf.MultiNextStates(trialState{}, cancelState{}, updateChargeAmountState{}), nil
 }
 
+func NewTriageState(svc MyService) iwf.WorkflowState {
+	return trialState{
+		svc: svc,
+	}
+}
+
 type trialState struct {
 	iwf.DefaultStateIdAndOptions
+	svc MyService
 }
 
 func (b trialState) Start(ctx iwf.WorkflowContext, input iwf.Object, persistence iwf.Persistence, communication iwf.Communication) (*iwf.CommandRequest, error) {
@@ -93,8 +112,15 @@ func (b trialState) Decide(ctx iwf.WorkflowContext, input iwf.Object, commandRes
 	return iwf.SingleNextState(chargeCurrentBillState{}, nil), nil
 }
 
+func NewChargeCurrentBillState(svc MyService) iwf.WorkflowState {
+	return chargeCurrentBillState{
+		svc: svc,
+	}
+}
+
 type chargeCurrentBillState struct {
 	iwf.DefaultStateIdAndOptions
+	svc MyService
 }
 
 const subscriptionOverKey = "subscriptionOver"
@@ -135,8 +161,15 @@ func (b chargeCurrentBillState) Decide(ctx iwf.WorkflowContext, input iwf.Object
 	return iwf.SingleNextState(chargeCurrentBillState{}, nil), nil
 }
 
+func NewCancelState(svc MyService) iwf.WorkflowState {
+	return cancelState{
+		svc: svc,
+	}
+}
+
 type cancelState struct {
 	iwf.DefaultStateIdAndOptions
+	svc MyService
 }
 
 func (b cancelState) Start(ctx iwf.WorkflowContext, input iwf.Object, persistence iwf.Persistence, communication iwf.Communication) (*iwf.CommandRequest, error) {
@@ -151,6 +184,10 @@ func (b cancelState) Decide(ctx iwf.WorkflowContext, input iwf.Object, commandRe
 
 	fmt.Println("this is an RPC call to send a cancellation email", customer.Email)
 	return iwf.ForceCompletingWorkflow, nil
+}
+
+func NewUpdateChargeAmountState() iwf.WorkflowState {
+	return updateChargeAmountState{}
 }
 
 type updateChargeAmountState struct {
