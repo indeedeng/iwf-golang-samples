@@ -1,13 +1,20 @@
 package subscription
 
 import (
-	"fmt"
 	"github.com/indeedeng/iwf-golang-sdk/iwf"
 	"time"
 )
 
 type SubscriptionWorkflow struct {
 	iwf.DefaultWorkflowType
+
+	svc MyService
+}
+
+func NewSubscriptionWorkflow(svc MyService) *SubscriptionWorkflow {
+	return &SubscriptionWorkflow{
+		svc: svc,
+	}
 }
 
 const (
@@ -20,11 +27,11 @@ const (
 
 func (b SubscriptionWorkflow) GetStates() []iwf.StateDef {
 	return []iwf.StateDef{
-		iwf.StartingStateDef(&initState{}),
-		iwf.NonStartingStateDef(&trialState{}),
-		iwf.NonStartingStateDef(&chargeCurrentBillState{}),
-		iwf.NonStartingStateDef(&cancelState{}),
-		iwf.NonStartingStateDef(&updateChargeAmountState{}),
+		iwf.StartingStateDef(NewInitState()),
+		iwf.NonStartingStateDef(NewTrialState(b.svc)),
+		iwf.NonStartingStateDef(NewChargeCurrentBillState(b.svc)),
+		iwf.NonStartingStateDef(NewCancelState(b.svc)),
+		iwf.NonStartingStateDef(NewUpdateChargeAmountState()),
 	}
 }
 
@@ -57,6 +64,10 @@ type Customer struct {
 	Subscription Subscription
 }
 
+func NewInitState() iwf.WorkflowState {
+	return initState{}
+}
+
 type initState struct {
 	iwf.DefaultStateIdAndOptions
 }
@@ -72,8 +83,15 @@ func (b initState) Decide(ctx iwf.WorkflowContext, input iwf.Object, commandResu
 	return iwf.MultiNextStates(trialState{}, cancelState{}, updateChargeAmountState{}), nil
 }
 
+func NewTrialState(svc MyService) iwf.WorkflowState {
+	return trialState{
+		svc: svc,
+	}
+}
+
 type trialState struct {
 	iwf.DefaultStateIdAndOptions
+	svc MyService
 }
 
 func (b trialState) Start(ctx iwf.WorkflowContext, input iwf.Object, persistence iwf.Persistence, communication iwf.Communication) (*iwf.CommandRequest, error) {
@@ -81,7 +99,7 @@ func (b trialState) Start(ctx iwf.WorkflowContext, input iwf.Object, persistence
 	persistence.GetDataObject(keyCustomer, &customer)
 
 	// send welcome email
-	fmt.Println("this is an RPC call to send an welcome email to ", customer.FirstName, customer.LastName, customer.Email)
+	b.svc.sendEmail(customer.Email, "welcome email", "hello content")
 
 	return iwf.AllCommandsCompletedRequest(
 		iwf.NewTimerCommand("", time.Now().Add(customer.Subscription.TrialPeriod)),
@@ -93,8 +111,15 @@ func (b trialState) Decide(ctx iwf.WorkflowContext, input iwf.Object, commandRes
 	return iwf.SingleNextState(chargeCurrentBillState{}, nil), nil
 }
 
+func NewChargeCurrentBillState(svc MyService) iwf.WorkflowState {
+	return chargeCurrentBillState{
+		svc: svc,
+	}
+}
+
 type chargeCurrentBillState struct {
 	iwf.DefaultStateIdAndOptions
+	svc MyService
 }
 
 const subscriptionOverKey = "subscriptionOver"
@@ -125,18 +150,25 @@ func (b chargeCurrentBillState) Decide(ctx iwf.WorkflowContext, input iwf.Object
 	var subscriptionOver bool
 	persistence.GetStateLocal(subscriptionOverKey, &subscriptionOver)
 	if subscriptionOver {
-		fmt.Println("this is an RPC call to send a subscription over email to user ", customer.Email)
+		b.svc.sendEmail(customer.Email, "subscription over", "hello content")
 		// use force completing because the cancel state is still waiting for signal
 		return iwf.ForceCompletingWorkflow, nil
 	}
 
-	fmt.Printf("this is an RPC call to charge customer %v for $%v \n", customer.Email, customer.Subscription.BillingPeriodCharge)
+	b.svc.chargeUser(customer.Email, customer.Id, customer.Subscription.BillingPeriodCharge)
 
 	return iwf.SingleNextState(chargeCurrentBillState{}, nil), nil
 }
 
+func NewCancelState(svc MyService) iwf.WorkflowState {
+	return cancelState{
+		svc: svc,
+	}
+}
+
 type cancelState struct {
 	iwf.DefaultStateIdAndOptions
+	svc MyService
 }
 
 func (b cancelState) Start(ctx iwf.WorkflowContext, input iwf.Object, persistence iwf.Persistence, communication iwf.Communication) (*iwf.CommandRequest, error) {
@@ -149,8 +181,12 @@ func (b cancelState) Decide(ctx iwf.WorkflowContext, input iwf.Object, commandRe
 	var customer Customer
 	persistence.GetDataObject(keyCustomer, &customer)
 
-	fmt.Println("this is an RPC call to send a cancellation email", customer.Email)
+	b.svc.sendEmail(customer.Email, "subscription canceled", "hello content")
 	return iwf.ForceCompletingWorkflow, nil
+}
+
+func NewUpdateChargeAmountState() iwf.WorkflowState {
+	return updateChargeAmountState{}
 }
 
 type updateChargeAmountState struct {

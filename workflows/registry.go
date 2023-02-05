@@ -13,13 +13,17 @@ import (
 var registry = iwf.NewRegistry()
 
 func init() {
+
+	svc := subscription.NewMyService()
+	subscriptionWf := subscription.NewSubscriptionWorkflow(svc)
+
 	err := registry.AddWorkflows(
+		subscriptionWf,
 		&basic.BasicWorkflow{},
 		&interstate.InterStateWorkflow{},
 		&persistence.PersistenceWorkflow{},
 		&signal.SignalWorkflow{},
 		&timer.TimerWorkflow{},
-		&subscription.SubscriptionWorkflow{},
 	)
 	if err != nil {
 		panic(err)
