@@ -28,8 +28,8 @@ github.com/golang/protobuf v1.5.2/go.mod h1:XVQd3VNwM+JqD3oG2Ue2ip4fOMUkwXdXDdiu
 github.com/google/go-cmp v0.5.5/go.mod h1:v8dTdLbMG2kIc/vJvl+f65V22dbkXbowE6jgT/gNBxE=
 github.com/google/go-cmp v0.5.8 h1:e6P7q2lk1O+qJJb4BtCQXlK8vWEO8V1ZeuEdJNOqZyg=
 github.com/google/gofuzz v1.0.0/go.mod h1:dBl0BpW6vV/+mYPU4Po3pmUjxk6FQPldtuIdl/M65Eg=
-github.com/indeedeng/iwf-golang-sdk v1.2.1 h1:btY+FXnNIIB663yuQO0+wzRGju4U3HUOhaGAMlIf+wE=
-github.com/indeedeng/iwf-golang-sdk v1.2.1/go.mod h1:zkFdB7liDxpeIOYKwvLaOc/kr9ixaOdwn1p4upY2h7A=
+github.com/indeedeng/iwf-golang-sdk v1.3.0 h1:kPWtHT9wWHuQh5s4fER37JDEmiJXwxYADgidAfneSek=
+github.com/indeedeng/iwf-golang-sdk v1.3.0/go.mod h1:zkFdB7liDxpeIOYKwvLaOc/kr9ixaOdwn1p4upY2h7A=
 github.com/json-iterator/go v1.1.12 h1:PV8peI4a0ysnczrg+LtxykD8LfKY9ML6u2jnxaEnrnM=
 github.com/json-iterator/go v1.1.12/go.mod h1:e30LSqwooZae/UwlEbR2852Gd8hjQvJoHmT4TnhNGBo=
 github.com/kr/pretty v0.1.0/go.mod h1:dAy3ld7l9f0ibDNOQOHHMYYIIbhfbHSm3C4ZsoJORNo=
