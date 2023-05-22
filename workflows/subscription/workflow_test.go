@@ -43,38 +43,38 @@ func beforeEach(t *testing.T) {
 	mockCommunication = iwftest.NewMockCommunication(ctrl)
 }
 
-func TestInitState_Start(t *testing.T) {
+func TestInitState_WaitUntil(t *testing.T) {
 	beforeEach(t)
 
 	state := NewInitState()
 
-	mockPersistence.EXPECT().SetDataObject(keyCustomer, testCustomer)
-	cmdReq, err := state.Start(mockWfCtx, testCustomerObj, mockPersistence, mockCommunication)
+	mockPersistence.EXPECT().SetDataAttribute(keyCustomer, testCustomer)
+	cmdReq, err := state.WaitUntil(mockWfCtx, testCustomerObj, mockPersistence, mockCommunication)
 	assert.Nil(t, err)
 	assert.Equal(t, iwf.EmptyCommandRequest(), cmdReq)
 }
 
-func TestInitState_Decide(t *testing.T) {
+func TestInitState_Execute(t *testing.T) {
 	beforeEach(t)
 
 	state := NewInitState()
 	input := iwftest.NewTestObject(testCustomer)
 
-	decision, err := state.Decide(mockWfCtx, input, emptyCmdResults, mockPersistence, mockCommunication)
+	decision, err := state.Execute(mockWfCtx, input, emptyCmdResults, mockPersistence, mockCommunication)
 	assert.Nil(t, err)
 	assert.Equal(t, iwf.MultiNextStates(
 		trialState{}, cancelState{}, updateChargeAmountState{},
 	), decision)
 }
 
-func TestTrialState_Start(t *testing.T) {
+func TestTrialState_WaitUntil(t *testing.T) {
 	beforeEach(t)
 
 	state := NewTrialState(mockSvc)
 
 	mockSvc.EXPECT().sendEmail(testCustomer.Email, gomock.Any(), gomock.Any())
-	mockPersistence.EXPECT().GetDataObject(keyCustomer, gomock.Any()).SetArg(1, testCustomer)
-	cmdReq, err := state.Start(mockWfCtx, emptyObj, mockPersistence, mockCommunication)
+	mockPersistence.EXPECT().GetDataAttribute(keyCustomer, gomock.Any()).SetArg(1, testCustomer)
+	cmdReq, err := state.WaitUntil(mockWfCtx, emptyObj, mockPersistence, mockCommunication)
 	assert.Nil(t, err)
 	firingTime := cmdReq.Commands[0].TimerCommand.FiringUnixTimestampSeconds
 	assert.Equal(t, iwf.AllCommandsCompletedRequest(
@@ -82,14 +82,14 @@ func TestTrialState_Start(t *testing.T) {
 	), cmdReq)
 }
 
-func TestTrialState_Decide(t *testing.T) {
+func TestTrialState_Execute(t *testing.T) {
 	beforeEach(t)
 
 	state := NewTrialState(mockSvc)
 
-	mockPersistence.EXPECT().SetDataObject(keyBillingPeriodNum, 0)
+	mockPersistence.EXPECT().SetDataAttribute(keyBillingPeriodNum, 0)
 
-	decision, err := state.Decide(mockWfCtx, emptyObj, emptyCmdResults, mockPersistence, mockCommunication)
+	decision, err := state.Execute(mockWfCtx, emptyObj, emptyCmdResults, mockPersistence, mockCommunication)
 	assert.Nil(t, err)
 	assert.Equal(t, iwf.SingleNextState(
 		chargeCurrentBillState{}, nil,
@@ -101,11 +101,11 @@ func TestChargeCurrentBillStateStart_waitForDuration(t *testing.T) {
 
 	state := NewChargeCurrentBillState(mockSvc)
 
-	mockPersistence.EXPECT().GetDataObject(keyCustomer, gomock.Any()).SetArg(1, testCustomer)
-	mockPersistence.EXPECT().GetDataObject(keyBillingPeriodNum, gomock.Any()).SetArg(1, 0)
-	mockPersistence.EXPECT().SetDataObject(keyBillingPeriodNum, 1)
+	mockPersistence.EXPECT().GetDataAttribute(keyCustomer, gomock.Any()).SetArg(1, testCustomer)
+	mockPersistence.EXPECT().GetDataAttribute(keyBillingPeriodNum, gomock.Any()).SetArg(1, 0)
+	mockPersistence.EXPECT().SetDataAttribute(keyBillingPeriodNum, 1)
 
-	cmdReq, err := state.Start(mockWfCtx, emptyObj, mockPersistence, mockCommunication)
+	cmdReq, err := state.WaitUntil(mockWfCtx, emptyObj, mockPersistence, mockCommunication)
 	assert.Nil(t, err)
 	cmd := cmdReq.Commands[0]
 	assert.Equal(t, iwf.AllCommandsCompletedRequest(iwf.NewTimerCommand("", time.Unix(cmd.TimerCommand.FiringUnixTimestampSeconds, 0))), cmdReq)
@@ -116,11 +116,11 @@ func TestChargeCurrentBillStateStart_subscriptionOver(t *testing.T) {
 
 	state := NewChargeCurrentBillState(mockSvc)
 
-	mockPersistence.EXPECT().GetDataObject(keyCustomer, gomock.Any()).SetArg(1, testCustomer)
-	mockPersistence.EXPECT().GetDataObject(keyBillingPeriodNum, gomock.Any()).SetArg(1, testCustomer.Subscription.MaxBillingPeriods)
-	mockPersistence.EXPECT().SetStateLocal(subscriptionOverKey, true)
+	mockPersistence.EXPECT().GetDataAttribute(keyCustomer, gomock.Any()).SetArg(1, testCustomer)
+	mockPersistence.EXPECT().GetDataAttribute(keyBillingPeriodNum, gomock.Any()).SetArg(1, testCustomer.Subscription.MaxBillingPeriods)
+	mockPersistence.EXPECT().SetStateExecutionLocal(subscriptionOverKey, true)
 
-	cmdReq, err := state.Start(mockWfCtx, emptyObj, mockPersistence, mockCommunication)
+	cmdReq, err := state.WaitUntil(mockWfCtx, emptyObj, mockPersistence, mockCommunication)
 	assert.Nil(t, err)
 	assert.Equal(t, iwf.EmptyCommandRequest(), cmdReq)
 }
@@ -130,11 +130,11 @@ func TestChargeCurrentBillStateDecide_subscriptionNotOver(t *testing.T) {
 
 	state := NewChargeCurrentBillState(mockSvc)
 
-	mockPersistence.EXPECT().GetDataObject(keyCustomer, gomock.Any()).SetArg(1, testCustomer)
-	mockPersistence.EXPECT().GetStateLocal(subscriptionOverKey, gomock.Any())
+	mockPersistence.EXPECT().GetDataAttribute(keyCustomer, gomock.Any()).SetArg(1, testCustomer)
+	mockPersistence.EXPECT().GetStateExecutionLocal(subscriptionOverKey, gomock.Any())
 	mockSvc.EXPECT().chargeUser(testCustomer.Email, testCustomer.Id, testCustomer.Subscription.BillingPeriodCharge)
 
-	decision, err := state.Decide(mockWfCtx, emptyObj, emptyCmdResults, mockPersistence, mockCommunication)
+	decision, err := state.Execute(mockWfCtx, emptyObj, emptyCmdResults, mockPersistence, mockCommunication)
 	assert.Nil(t, err)
 	assert.Equal(t, iwf.SingleNextState(&chargeCurrentBillState{}, nil), decision)
 }
@@ -144,26 +144,26 @@ func TestChargeCurrentBillStateDecide_subscriptionOver(t *testing.T) {
 
 	state := NewChargeCurrentBillState(mockSvc)
 
-	mockPersistence.EXPECT().GetDataObject(keyCustomer, gomock.Any()).SetArg(1, testCustomer)
-	mockPersistence.EXPECT().GetStateLocal(subscriptionOverKey, gomock.Any()).SetArg(1, true)
+	mockPersistence.EXPECT().GetDataAttribute(keyCustomer, gomock.Any()).SetArg(1, testCustomer)
+	mockPersistence.EXPECT().GetStateExecutionLocal(subscriptionOverKey, gomock.Any()).SetArg(1, true)
 	mockSvc.EXPECT().sendEmail(testCustomer.Email, gomock.Any(), gomock.Any())
 
-	decision, err := state.Decide(mockWfCtx, emptyObj, emptyCmdResults, mockPersistence, mockCommunication)
+	decision, err := state.Execute(mockWfCtx, emptyObj, emptyCmdResults, mockPersistence, mockCommunication)
 	assert.Nil(t, err)
 	assert.Equal(t, iwf.ForceCompletingWorkflow, decision)
 }
 
-func TestUpdateChargeAmountState_Start(t *testing.T) {
+func TestUpdateChargeAmountState_WaitUntil(t *testing.T) {
 	beforeEach(t)
 
 	state := NewUpdateChargeAmountState()
 
-	cmdReq, err := state.Start(mockWfCtx, emptyObj, mockPersistence, mockCommunication)
+	cmdReq, err := state.WaitUntil(mockWfCtx, emptyObj, mockPersistence, mockCommunication)
 	assert.Nil(t, err)
 	assert.Equal(t, iwf.AllCommandsCompletedRequest(iwf.NewSignalCommand("", SignalUpdateBillingPeriodChargeAmount)), cmdReq)
 }
 
-func TestUpdateChargeAmountState_Decide(t *testing.T) {
+func TestUpdateChargeAmountState_Execute(t *testing.T) {
 	beforeEach(t)
 
 	state := NewUpdateChargeAmountState()
@@ -181,33 +181,33 @@ func TestUpdateChargeAmountState_Decide(t *testing.T) {
 	updatedCustomer := testCustomer
 	updatedCustomer.Subscription.BillingPeriodCharge = 200
 
-	mockPersistence.EXPECT().GetDataObject(keyCustomer, gomock.Any()).SetArg(1, testCustomer)
-	mockPersistence.EXPECT().SetDataObject(keyCustomer, updatedCustomer)
+	mockPersistence.EXPECT().GetDataAttribute(keyCustomer, gomock.Any()).SetArg(1, testCustomer)
+	mockPersistence.EXPECT().SetDataAttribute(keyCustomer, updatedCustomer)
 
-	decision, err := state.Decide(mockWfCtx, emptyObj, cmdResults, mockPersistence, mockCommunication)
+	decision, err := state.Execute(mockWfCtx, emptyObj, cmdResults, mockPersistence, mockCommunication)
 	assert.Nil(t, err)
 	assert.Equal(t, iwf.SingleNextState(&updateChargeAmountState{}, nil), decision)
 }
 
-func TestCancelState_Start(t *testing.T) {
+func TestCancelState_WaitUntil(t *testing.T) {
 	beforeEach(t)
 
 	state := NewCancelState(mockSvc)
 
-	cmdReq, err := state.Start(mockWfCtx, emptyObj, mockPersistence, mockCommunication)
+	cmdReq, err := state.WaitUntil(mockWfCtx, emptyObj, mockPersistence, mockCommunication)
 	assert.Nil(t, err)
 	assert.Equal(t, iwf.AllCommandsCompletedRequest(iwf.NewSignalCommand("", SignalCancelSubscription)), cmdReq)
 }
 
-func TestCancelState_Decide(t *testing.T) {
+func TestCancelState_Execute(t *testing.T) {
 	beforeEach(t)
 
 	state := NewCancelState(mockSvc)
 
-	mockPersistence.EXPECT().GetDataObject(keyCustomer, gomock.Any()).SetArg(1, testCustomer)
+	mockPersistence.EXPECT().GetDataAttribute(keyCustomer, gomock.Any()).SetArg(1, testCustomer)
 	mockSvc.EXPECT().sendEmail(testCustomer.Email, gomock.Any(), gomock.Any())
 
-	decision, err := state.Decide(mockWfCtx, emptyObj, emptyCmdResults, mockPersistence, mockCommunication)
+	decision, err := state.Execute(mockWfCtx, emptyObj, emptyCmdResults, mockPersistence, mockCommunication)
 	assert.Nil(t, err)
 	assert.Equal(t, iwf.ForceCompletingWorkflow, decision)
 }

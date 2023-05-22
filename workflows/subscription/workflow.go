@@ -25,7 +25,7 @@ const (
 	SignalUpdateBillingPeriodChargeAmount = "updateBillingPeriodChargeAmount"
 )
 
-func (b SubscriptionWorkflow) GetStates() []iwf.StateDef {
+func (b SubscriptionWorkflow) GetWorkflowStates() []iwf.StateDef {
 	return []iwf.StateDef{
 		iwf.StartingStateDef(NewInitState()),
 		iwf.NonStartingStateDef(NewTrialState(b.svc)),
@@ -37,8 +37,8 @@ func (b SubscriptionWorkflow) GetStates() []iwf.StateDef {
 
 func (b SubscriptionWorkflow) GetPersistenceSchema() []iwf.PersistenceFieldDef {
 	return []iwf.PersistenceFieldDef{
-		iwf.DataObjectDef(keyBillingPeriodNum),
-		iwf.DataObjectDef(keyCustomer),
+		iwf.DataAttributeDef(keyBillingPeriodNum),
+		iwf.DataAttributeDef(keyCustomer),
 	}
 }
 
@@ -69,17 +69,17 @@ func NewInitState() iwf.WorkflowState {
 }
 
 type initState struct {
-	iwf.DefaultStateIdAndOptions
+	iwf.WorkflowStateDefaults
 }
 
-func (b initState) Start(ctx iwf.WorkflowContext, input iwf.Object, persistence iwf.Persistence, communication iwf.Communication) (*iwf.CommandRequest, error) {
+func (b initState) WaitUntil(ctx iwf.WorkflowContext, input iwf.Object, persistence iwf.Persistence, communication iwf.Communication) (*iwf.CommandRequest, error) {
 	var customer Customer
 	input.Get(&customer)
-	persistence.SetDataObject(keyCustomer, customer)
+	persistence.SetDataAttribute(keyCustomer, customer)
 	return iwf.EmptyCommandRequest(), nil
 }
 
-func (b initState) Decide(ctx iwf.WorkflowContext, input iwf.Object, commandResults iwf.CommandResults, persistence iwf.Persistence, communication iwf.Communication) (*iwf.StateDecision, error) {
+func (b initState) Execute(ctx iwf.WorkflowContext, input iwf.Object, commandResults iwf.CommandResults, persistence iwf.Persistence, communication iwf.Communication) (*iwf.StateDecision, error) {
 	return iwf.MultiNextStates(trialState{}, cancelState{}, updateChargeAmountState{}), nil
 }
 
@@ -90,13 +90,13 @@ func NewTrialState(svc MyService) iwf.WorkflowState {
 }
 
 type trialState struct {
-	iwf.DefaultStateIdAndOptions
+	iwf.WorkflowStateDefaults
 	svc MyService
 }
 
-func (b trialState) Start(ctx iwf.WorkflowContext, input iwf.Object, persistence iwf.Persistence, communication iwf.Communication) (*iwf.CommandRequest, error) {
+func (b trialState) WaitUntil(ctx iwf.WorkflowContext, input iwf.Object, persistence iwf.Persistence, communication iwf.Communication) (*iwf.CommandRequest, error) {
 	var customer Customer
-	persistence.GetDataObject(keyCustomer, &customer)
+	persistence.GetDataAttribute(keyCustomer, &customer)
 
 	// send welcome email
 	b.svc.sendEmail(customer.Email, "welcome email", "hello content")
@@ -106,8 +106,8 @@ func (b trialState) Start(ctx iwf.WorkflowContext, input iwf.Object, persistence
 	), nil
 }
 
-func (b trialState) Decide(ctx iwf.WorkflowContext, input iwf.Object, commandResults iwf.CommandResults, persistence iwf.Persistence, communication iwf.Communication) (*iwf.StateDecision, error) {
-	persistence.SetDataObject(keyBillingPeriodNum, 0)
+func (b trialState) Execute(ctx iwf.WorkflowContext, input iwf.Object, commandResults iwf.CommandResults, persistence iwf.Persistence, communication iwf.Communication) (*iwf.StateDecision, error) {
+	persistence.SetDataAttribute(keyBillingPeriodNum, 0)
 	return iwf.SingleNextState(chargeCurrentBillState{}, nil), nil
 }
 
@@ -118,37 +118,37 @@ func NewChargeCurrentBillState(svc MyService) iwf.WorkflowState {
 }
 
 type chargeCurrentBillState struct {
-	iwf.DefaultStateIdAndOptions
+	iwf.WorkflowStateDefaults
 	svc MyService
 }
 
 const subscriptionOverKey = "subscriptionOver"
 
-func (b chargeCurrentBillState) Start(ctx iwf.WorkflowContext, input iwf.Object, persistence iwf.Persistence, communication iwf.Communication) (*iwf.CommandRequest, error) {
+func (b chargeCurrentBillState) WaitUntil(ctx iwf.WorkflowContext, input iwf.Object, persistence iwf.Persistence, communication iwf.Communication) (*iwf.CommandRequest, error) {
 	var customer Customer
-	persistence.GetDataObject(keyCustomer, &customer)
+	persistence.GetDataAttribute(keyCustomer, &customer)
 
 	var periodNum int
-	persistence.GetDataObject(keyBillingPeriodNum, &periodNum)
+	persistence.GetDataAttribute(keyBillingPeriodNum, &periodNum)
 
 	if periodNum >= customer.Subscription.MaxBillingPeriods {
-		persistence.SetStateLocal(subscriptionOverKey, true)
+		persistence.SetStateExecutionLocal(subscriptionOverKey, true)
 		return iwf.EmptyCommandRequest(), nil
 	}
 
-	persistence.SetDataObject(keyBillingPeriodNum, periodNum+1)
+	persistence.SetDataAttribute(keyBillingPeriodNum, periodNum+1)
 
 	return iwf.AllCommandsCompletedRequest(
 		iwf.NewTimerCommand("", time.Now().Add(customer.Subscription.BillingPeriod)),
 	), nil
 }
 
-func (b chargeCurrentBillState) Decide(ctx iwf.WorkflowContext, input iwf.Object, commandResults iwf.CommandResults, persistence iwf.Persistence, communication iwf.Communication) (*iwf.StateDecision, error) {
+func (b chargeCurrentBillState) Execute(ctx iwf.WorkflowContext, input iwf.Object, commandResults iwf.CommandResults, persistence iwf.Persistence, communication iwf.Communication) (*iwf.StateDecision, error) {
 	var customer Customer
-	persistence.GetDataObject(keyCustomer, &customer)
+	persistence.GetDataAttribute(keyCustomer, &customer)
 
 	var subscriptionOver bool
-	persistence.GetStateLocal(subscriptionOverKey, &subscriptionOver)
+	persistence.GetStateExecutionLocal(subscriptionOverKey, &subscriptionOver)
 	if subscriptionOver {
 		b.svc.sendEmail(customer.Email, "subscription over", "hello content")
 		// use force completing because the cancel state is still waiting for signal
@@ -167,19 +167,19 @@ func NewCancelState(svc MyService) iwf.WorkflowState {
 }
 
 type cancelState struct {
-	iwf.DefaultStateIdAndOptions
+	iwf.WorkflowStateDefaults
 	svc MyService
 }
 
-func (b cancelState) Start(ctx iwf.WorkflowContext, input iwf.Object, persistence iwf.Persistence, communication iwf.Communication) (*iwf.CommandRequest, error) {
+func (b cancelState) WaitUntil(ctx iwf.WorkflowContext, input iwf.Object, persistence iwf.Persistence, communication iwf.Communication) (*iwf.CommandRequest, error) {
 	return iwf.AllCommandsCompletedRequest(
 		iwf.NewSignalCommand("", SignalCancelSubscription),
 	), nil
 }
 
-func (b cancelState) Decide(ctx iwf.WorkflowContext, input iwf.Object, commandResults iwf.CommandResults, persistence iwf.Persistence, communication iwf.Communication) (*iwf.StateDecision, error) {
+func (b cancelState) Execute(ctx iwf.WorkflowContext, input iwf.Object, commandResults iwf.CommandResults, persistence iwf.Persistence, communication iwf.Communication) (*iwf.StateDecision, error) {
 	var customer Customer
-	persistence.GetDataObject(keyCustomer, &customer)
+	persistence.GetDataAttribute(keyCustomer, &customer)
 
 	b.svc.sendEmail(customer.Email, "subscription canceled", "hello content")
 	return iwf.ForceCompletingWorkflow, nil
@@ -190,24 +190,24 @@ func NewUpdateChargeAmountState() iwf.WorkflowState {
 }
 
 type updateChargeAmountState struct {
-	iwf.DefaultStateIdAndOptions
+	iwf.WorkflowStateDefaults
 }
 
-func (b updateChargeAmountState) Start(ctx iwf.WorkflowContext, input iwf.Object, persistence iwf.Persistence, communication iwf.Communication) (*iwf.CommandRequest, error) {
+func (b updateChargeAmountState) WaitUntil(ctx iwf.WorkflowContext, input iwf.Object, persistence iwf.Persistence, communication iwf.Communication) (*iwf.CommandRequest, error) {
 	return iwf.AllCommandsCompletedRequest(
 		iwf.NewSignalCommand("", SignalUpdateBillingPeriodChargeAmount),
 	), nil
 }
 
-func (b updateChargeAmountState) Decide(ctx iwf.WorkflowContext, input iwf.Object, commandResults iwf.CommandResults, persistence iwf.Persistence, communication iwf.Communication) (*iwf.StateDecision, error) {
+func (b updateChargeAmountState) Execute(ctx iwf.WorkflowContext, input iwf.Object, commandResults iwf.CommandResults, persistence iwf.Persistence, communication iwf.Communication) (*iwf.StateDecision, error) {
 	var customer Customer
-	persistence.GetDataObject(keyCustomer, &customer)
+	persistence.GetDataAttribute(keyCustomer, &customer)
 
 	var newAmount int
 	commandResults.GetSignalCommandResultByChannel(SignalUpdateBillingPeriodChargeAmount).SignalValue.Get(&newAmount)
 
 	customer.Subscription.BillingPeriodCharge = newAmount
-	persistence.SetDataObject(keyCustomer, customer)
+	persistence.SetDataAttribute(keyCustomer, customer)
 
 	return iwf.SingleNextState(updateChargeAmountState{}, nil), nil
 }

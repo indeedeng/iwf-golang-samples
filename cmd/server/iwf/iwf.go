@@ -24,12 +24,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/indeedeng/iwf-golang-samples/workflows"
-	"github.com/indeedeng/iwf-golang-samples/workflows/basic"
-	"github.com/indeedeng/iwf-golang-samples/workflows/interstate"
-	"github.com/indeedeng/iwf-golang-samples/workflows/persistence"
-	"github.com/indeedeng/iwf-golang-samples/workflows/signal"
 	"github.com/indeedeng/iwf-golang-samples/workflows/subscription"
-	"github.com/indeedeng/iwf-golang-samples/workflows/timer"
 	"github.com/indeedeng/iwf-golang-sdk/gen/iwfidl"
 	"github.com/indeedeng/iwf-golang-sdk/iwf"
 	"github.com/urfave/cli"
@@ -73,14 +68,9 @@ var workerService = iwf.NewWorkerService(workflows.GetRegistry(), nil)
 
 func startWorkflowWorker() (closeFunc func()) {
 	router := gin.Default()
-	router.POST(iwf.WorkflowStateStartApi, apiV1WorkflowStateStart)
-	router.POST(iwf.WorkflowStateDecideApi, apiV1WorkflowStateDecide)
-
-	persInput := persistence.ExampleDataObjectModel{
-		IntValue: time.Now().UnixNano(),
-		StrValue: "same string for test",
-		Datetime: time.Now(),
-	}
+	router.POST(iwf.WorkflowStateWaitUntilApi, apiV1WorkflowStateStart)
+	router.POST(iwf.WorkflowStateExecuteApi, apiV1WorkflowStateDecide)
+	router.POST(iwf.WorkflowWorkerRPCAPI, apiV1WorkflowWorkerRpc)
 
 	customer := subscription.Customer{
 		FirstName: "Quanzheng",
@@ -94,12 +84,7 @@ func startWorkflowWorker() (closeFunc func()) {
 			BillingPeriodCharge: 100,
 		},
 	}
-
-	router.GET("/basic/start", startWorklfow(&basic.BasicWorkflow{}, 1))
-	router.GET("/interstateChannel/start", startWorklfow(&interstate.InterStateWorkflow{}, nil))
-	router.GET("/persistence/start", startWorklfow(&persistence.PersistenceWorkflow{}, persInput))
-	router.GET("/signal/start", startWorklfow(&signal.SignalWorkflow{}, nil))
-	router.GET("/timer/start", startWorklfow(&timer.TimerWorkflow{}, 5))
+	
 	router.GET("/subscription/start", startWorklfow(&subscription.SubscriptionWorkflow{}, customer))
 	router.GET("/subscription/cancel", cancelSubscription)
 	router.GET("/subscription/updateChargeAmount", updateSubscriptionChargeAmount)
@@ -116,7 +101,7 @@ func startWorkflowWorker() (closeFunc func()) {
 	return func() { wfServer.Close() }
 }
 
-func startWorklfow(wf iwf.Workflow, input interface{}) gin.HandlerFunc {
+func startWorklfow(wf iwf.ObjectWorkflow, input interface{}) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		wfId := "TestSample" + strconv.Itoa(int(time.Now().Unix()))
 		runId, err := client.StartWorkflow(c.Request.Context(), wf, wfId, 3600, input, nil)
@@ -161,13 +146,13 @@ func updateSubscriptionChargeAmount(c *gin.Context) {
 }
 
 func apiV1WorkflowStateStart(c *gin.Context) {
-	var req iwfidl.WorkflowStateStartRequest
+	var req iwfidl.WorkflowStateWaitUntilRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	resp, err := workerService.HandleWorkflowStateStart(c.Request.Context(), req)
+	resp, err := workerService.HandleWorkflowStateWaitUntil(c.Request.Context(), req)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -176,15 +161,34 @@ func apiV1WorkflowStateStart(c *gin.Context) {
 	return
 }
 func apiV1WorkflowStateDecide(c *gin.Context) {
-	var req iwfidl.WorkflowStateDecideRequest
+	var req iwfidl.WorkflowStateExecuteRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	resp, err := workerService.HandleWorkflowStateDecide(c.Request.Context(), req)
+	resp, err := workerService.HandleWorkflowStateExecute(c.Request.Context(), req)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, resp)
+	return
+}
+
+func apiV1WorkflowWorkerRpc(c *gin.Context) {
+	var req iwfidl.WorkflowWorkerRpcRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	resp, err := workerService.HandleWorkflowWorkerRPC(c.Request.Context(), req)
+	if err != nil {
+		c.JSON(501, iwfidl.WorkerErrorResponse{
+			Detail:    iwfidl.PtrString(err.Error()),
+			ErrorType: iwfidl.PtrString("test-error-type"),
+		})
 		return
 	}
 	c.JSON(http.StatusOK, resp)
