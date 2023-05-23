@@ -2,6 +2,7 @@ package subscription
 
 import (
 	"github.com/golang/mock/gomock"
+	"github.com/indeedeng/iwf-golang-samples/workflows/service"
 	"github.com/indeedeng/iwf-golang-sdk/gen/iwfidl"
 	"github.com/indeedeng/iwf-golang-sdk/iwf"
 	"github.com/indeedeng/iwf-golang-sdk/iwftest"
@@ -32,12 +33,12 @@ var mockPersistence *iwftest.MockPersistence
 var mockCommunication *iwftest.MockCommunication
 var emptyCmdResults = iwf.CommandResults{}
 var emptyObj = iwftest.NewTestObject(nil)
-var mockSvc *MockMyService
+var mockSvc *service.MockMyService
 
 func beforeEach(t *testing.T) {
 	ctrl := gomock.NewController(t)
 
-	mockSvc = NewMockMyService(ctrl)
+	mockSvc = service.NewMockMyService(ctrl)
 	mockWfCtx = iwftest.NewMockWorkflowContext(ctrl)
 	mockPersistence = iwftest.NewMockPersistence(ctrl)
 	mockCommunication = iwftest.NewMockCommunication(ctrl)
@@ -72,7 +73,7 @@ func TestTrialState_WaitUntil(t *testing.T) {
 
 	state := NewTrialState(mockSvc)
 
-	mockSvc.EXPECT().sendEmail(testCustomer.Email, gomock.Any(), gomock.Any())
+	mockSvc.EXPECT().SendEmail(testCustomer.Email, gomock.Any(), gomock.Any())
 	mockPersistence.EXPECT().GetDataAttribute(keyCustomer, gomock.Any()).SetArg(1, testCustomer)
 	cmdReq, err := state.WaitUntil(mockWfCtx, emptyObj, mockPersistence, mockCommunication)
 	assert.Nil(t, err)
@@ -132,7 +133,7 @@ func TestChargeCurrentBillStateDecide_subscriptionNotOver(t *testing.T) {
 
 	mockPersistence.EXPECT().GetDataAttribute(keyCustomer, gomock.Any()).SetArg(1, testCustomer)
 	mockPersistence.EXPECT().GetStateExecutionLocal(subscriptionOverKey, gomock.Any())
-	mockSvc.EXPECT().chargeUser(testCustomer.Email, testCustomer.Id, testCustomer.Subscription.BillingPeriodCharge)
+	mockSvc.EXPECT().ChargeUser(testCustomer.Email, testCustomer.Id, testCustomer.Subscription.BillingPeriodCharge)
 
 	decision, err := state.Execute(mockWfCtx, emptyObj, emptyCmdResults, mockPersistence, mockCommunication)
 	assert.Nil(t, err)
@@ -146,7 +147,7 @@ func TestChargeCurrentBillStateDecide_subscriptionOver(t *testing.T) {
 
 	mockPersistence.EXPECT().GetDataAttribute(keyCustomer, gomock.Any()).SetArg(1, testCustomer)
 	mockPersistence.EXPECT().GetStateExecutionLocal(subscriptionOverKey, gomock.Any()).SetArg(1, true)
-	mockSvc.EXPECT().sendEmail(testCustomer.Email, gomock.Any(), gomock.Any())
+	mockSvc.EXPECT().SendEmail(testCustomer.Email, gomock.Any(), gomock.Any())
 
 	decision, err := state.Execute(mockWfCtx, emptyObj, emptyCmdResults, mockPersistence, mockCommunication)
 	assert.Nil(t, err)
@@ -205,7 +206,7 @@ func TestCancelState_Execute(t *testing.T) {
 	state := NewCancelState(mockSvc)
 
 	mockPersistence.EXPECT().GetDataAttribute(keyCustomer, gomock.Any()).SetArg(1, testCustomer)
-	mockSvc.EXPECT().sendEmail(testCustomer.Email, gomock.Any(), gomock.Any())
+	mockSvc.EXPECT().SendEmail(testCustomer.Email, gomock.Any(), gomock.Any())
 
 	decision, err := state.Execute(mockWfCtx, emptyObj, emptyCmdResults, mockPersistence, mockCommunication)
 	assert.Nil(t, err)

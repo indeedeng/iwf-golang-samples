@@ -1,6 +1,7 @@
 package subscription
 
 import (
+	"github.com/indeedeng/iwf-golang-samples/workflows/service"
 	"github.com/indeedeng/iwf-golang-sdk/iwf"
 	"time"
 )
@@ -8,10 +9,10 @@ import (
 type SubscriptionWorkflow struct {
 	iwf.DefaultWorkflowType
 
-	svc MyService
+	svc service.MyService
 }
 
-func NewSubscriptionWorkflow(svc MyService) *SubscriptionWorkflow {
+func NewSubscriptionWorkflow(svc service.MyService) *SubscriptionWorkflow {
 	return &SubscriptionWorkflow{
 		svc: svc,
 	}
@@ -90,7 +91,7 @@ func (b initState) Execute(ctx iwf.WorkflowContext, input iwf.Object, commandRes
 	return iwf.MultiNextStates(trialState{}, cancelState{}, updateChargeAmountState{}), nil
 }
 
-func NewTrialState(svc MyService) iwf.WorkflowState {
+func NewTrialState(svc service.MyService) iwf.WorkflowState {
 	return trialState{
 		svc: svc,
 	}
@@ -98,7 +99,7 @@ func NewTrialState(svc MyService) iwf.WorkflowState {
 
 type trialState struct {
 	iwf.WorkflowStateDefaults
-	svc MyService
+	svc service.MyService
 }
 
 func (b trialState) WaitUntil(ctx iwf.WorkflowContext, input iwf.Object, persistence iwf.Persistence, communication iwf.Communication) (*iwf.CommandRequest, error) {
@@ -106,7 +107,7 @@ func (b trialState) WaitUntil(ctx iwf.WorkflowContext, input iwf.Object, persist
 	persistence.GetDataAttribute(keyCustomer, &customer)
 
 	// send welcome email
-	b.svc.sendEmail(customer.Email, "welcome email", "hello content")
+	b.svc.SendEmail(customer.Email, "welcome email", "hello content")
 
 	return iwf.AllCommandsCompletedRequest(
 		iwf.NewTimerCommand("", time.Now().Add(customer.Subscription.TrialPeriod)),
@@ -118,7 +119,7 @@ func (b trialState) Execute(ctx iwf.WorkflowContext, input iwf.Object, commandRe
 	return iwf.SingleNextState(chargeCurrentBillState{}, nil), nil
 }
 
-func NewChargeCurrentBillState(svc MyService) iwf.WorkflowState {
+func NewChargeCurrentBillState(svc service.MyService) iwf.WorkflowState {
 	return chargeCurrentBillState{
 		svc: svc,
 	}
@@ -126,7 +127,7 @@ func NewChargeCurrentBillState(svc MyService) iwf.WorkflowState {
 
 type chargeCurrentBillState struct {
 	iwf.WorkflowStateDefaults
-	svc MyService
+	svc service.MyService
 }
 
 const subscriptionOverKey = "subscriptionOver"
@@ -157,17 +158,17 @@ func (b chargeCurrentBillState) Execute(ctx iwf.WorkflowContext, input iwf.Objec
 	var subscriptionOver bool
 	persistence.GetStateExecutionLocal(subscriptionOverKey, &subscriptionOver)
 	if subscriptionOver {
-		b.svc.sendEmail(customer.Email, "subscription over", "hello content")
+		b.svc.SendEmail(customer.Email, "subscription over", "hello content")
 		// use force completing because the cancel state is still waiting for signal
 		return iwf.ForceCompletingWorkflow, nil
 	}
 
-	b.svc.chargeUser(customer.Email, customer.Id, customer.Subscription.BillingPeriodCharge)
+	b.svc.ChargeUser(customer.Email, customer.Id, customer.Subscription.BillingPeriodCharge)
 
 	return iwf.SingleNextState(chargeCurrentBillState{}, nil), nil
 }
 
-func NewCancelState(svc MyService) iwf.WorkflowState {
+func NewCancelState(svc service.MyService) iwf.WorkflowState {
 	return cancelState{
 		svc: svc,
 	}
@@ -175,7 +176,7 @@ func NewCancelState(svc MyService) iwf.WorkflowState {
 
 type cancelState struct {
 	iwf.WorkflowStateDefaults
-	svc MyService
+	svc service.MyService
 }
 
 func (b cancelState) WaitUntil(ctx iwf.WorkflowContext, input iwf.Object, persistence iwf.Persistence, communication iwf.Communication) (*iwf.CommandRequest, error) {
@@ -188,7 +189,7 @@ func (b cancelState) Execute(ctx iwf.WorkflowContext, input iwf.Object, commandR
 	var customer Customer
 	persistence.GetDataAttribute(keyCustomer, &customer)
 
-	b.svc.sendEmail(customer.Email, "subscription canceled", "hello content")
+	b.svc.SendEmail(customer.Email, "subscription canceled", "hello content")
 	return iwf.ForceCompletingWorkflow, nil
 }
 

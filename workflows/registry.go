@@ -1,6 +1,7 @@
 package workflows
 
 import (
+	"github.com/indeedeng/iwf-golang-samples/workflows/service"
 	"github.com/indeedeng/iwf-golang-samples/workflows/subscription"
 	"github.com/indeedeng/iwf-golang-sdk/iwf"
 )
@@ -9,7 +10,7 @@ var registry = iwf.NewRegistry()
 
 func init() {
 
-	svc := subscription.NewMyService()
+	svc := service.NewMyService()
 	subscriptionWf := subscription.NewSubscriptionWorkflow(svc)
 
 	err := registry.AddWorkflows(
