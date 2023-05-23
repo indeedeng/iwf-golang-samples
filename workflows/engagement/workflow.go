@@ -8,17 +8,17 @@ import (
 	"time"
 )
 
-type EngagementWorkflow struct {
-	iwf.DefaultWorkflowType
-
-	svc service.MyService
-}
-
 func NewEngagementWorkflow(svc service.MyService) iwf.ObjectWorkflow {
 
 	return &EngagementWorkflow{
 		svc: svc,
 	}
+}
+
+type EngagementWorkflow struct {
+	iwf.DefaultWorkflowType
+
+	svc service.MyService
 }
 
 func (e EngagementWorkflow) GetWorkflowStates() []iwf.StateDef {
@@ -235,5 +235,13 @@ func (n notifyExternalSystemState) Execute(ctx iwf.WorkflowContext, input iwf.Ob
 // By default, all state execution will retry infinitely (until workflow timeout).
 // This may not work for some dependency as we may want to retry for only a certain times
 func (n notifyExternalSystemState) GetStateOptions() *iwfidl.WorkflowStateOptions {
-	return &iwfidl.WorkflowStateOptions{}
+	return &iwfidl.WorkflowStateOptions{
+		ExecuteApiRetryPolicy: &iwfidl.RetryPolicy{
+			BackoffCoefficient:             iwfidl.PtrFloat32(2),
+			MaximumAttempts:                iwfidl.PtrInt32(100),
+			MaximumAttemptsDurationSeconds: iwfidl.PtrInt32(3600),
+			MaximumIntervalSeconds:         iwfidl.PtrInt32(60),
+			InitialIntervalSeconds:         iwfidl.PtrInt32(3),
+		},
+	}
 }

@@ -28,21 +28,22 @@
 # Implementation Details 
 
 ## InitState
-<img width="1442" alt="Screenshot 2023-04-21 at 9 02 18 AM" src="https://user-images.githubusercontent.com/4523955/233682961-e46607a1-dc21-4199-80f1-91dc7262ca83.png">
+![Screenshot 2023-05-23 at 4 19 07 PM](https://github.com/indeedeng/iwf/assets/4523955/1104f0d6-1933-4842-b22b-0b31cb055092)
 
 ## ReminderState
 
-<img width="1437" alt="Screenshot 2023-04-21 at 8 59 56 AM" src="https://user-images.githubusercontent.com/4523955/233682134-598b449a-19d1-4176-aa37-4efe74753cc3.png">
+![Screenshot 2023-05-23 at 4 19 18 PM](https://github.com/indeedeng/iwf/assets/4523955/2cdfc832-36ff-49d0-addf-d9101108aeb9)
 
 ## RPC
-<img width="1438" alt="Screenshot 2023-04-21 at 9 02 01 AM" src="https://user-images.githubusercontent.com/4523955/233682996-5cec2a81-5092-4755-9ed7-f78c12bf128f.png">
+
+![Screenshot 2023-05-23 at 4 19 28 PM](https://github.com/indeedeng/iwf/assets/4523955/b498439c-c79a-40ee-9d56-f0961727865d)
 
 ## NotifyExtState
+![Screenshot 2023-05-23 at 4 19 46 PM](https://github.com/indeedeng/iwf/assets/4523955/e7e52e94-b383-4565-a1d2-d50b9c184745)
 
-<img width="1423" alt="Screenshot 2023-04-21 at 9 02 11 AM" src="https://user-images.githubusercontent.com/4523955/233682984-1fafe0cc-5229-4c0f-8cf2-21f6ff59d1dc.png">
 
 ## Controller
-And controller is a very thin layer of calling iWF client APIs and workflow RPC stub APIs. See [EngagementController](https://github.com/indeedeng/iwf-java-samples/blob/main/src/main/java/io/iworkflow/controller/EngagementWorkflowController.java).
+And controller is a very thin layer of calling iWF client APIs and workflow RPC stub APIs. See [engagement_controller](../../cmd/server/iwf/engagement_controller.go).
 
 # How to run
 
@@ -88,5 +89,5 @@ cadence adm cl asa --search_attr_key LastUpdateTimeMillis --search_attr_type 2
 * search API, use queries like:
   * ['EmployerId="test-employer-id" ORDER BY LastUpdateTimeMillis '](http://localhost:8803/engagement/list?query=<TODO>)
   * ['EmployerId="test-employer-id"'](http://localhost:8803/engagement/list?query=<TODO>)
-  * ['EmployerId="test-employer-id" AND EngagementStatus="INITIATED"'](http://localhost:8803/engagement/list?query=<TODO>)
+  * ['EmployerId="test-employer-id" AND EngagementStatus="Initiated"'](http://localhost:8803/engagement/list?query=<TODO>)
   * etc
