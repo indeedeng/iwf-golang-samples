@@ -21,7 +21,6 @@
 package iwf
 
 import (
-	"context"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/indeedeng/iwf-golang-samples/workflows"
@@ -114,53 +113,6 @@ func startWorklfow(wf iwf.ObjectWorkflow, input interface{}) gin.HandlerFunc {
 		c.JSON(http.StatusOK, fmt.Sprintf("workflowId: %v runId: %v", wfId, runId))
 		return
 	}
-}
-
-func cancelSubscription(c *gin.Context) {
-	wfId := c.Query("workflowId")
-	if wfId != "" {
-		err := client.SignalWorkflow(c.Request.Context(), &subscription.SubscriptionWorkflow{}, wfId, "", subscription.SignalCancelSubscription, nil)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, err.Error())
-		} else {
-			c.JSON(http.StatusOK, struct{}{})
-		}
-		return
-	}
-	c.JSON(http.StatusBadRequest, "must provide workflowId via URL parameter")
-}
-
-func descSubscription(c *gin.Context) {
-	wfId := c.Query("workflowId")
-	if wfId != "" {
-		wf := subscription.SubscriptionWorkflow{}
-		var rpcOutput subscription.Subscription
-		err := client.InvokeRPC(context.Background(), wfId, "", wf.Describe, nil, &rpcOutput)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, err.Error())
-		} else {
-			c.JSON(http.StatusOK, rpcOutput)
-		}
-		return
-	}
-	c.JSON(http.StatusBadRequest, "must provide workflowId via URL parameter")
-}
-
-func updateSubscriptionChargeAmount(c *gin.Context) {
-	wfId := c.Query("workflowId")
-	newChargeAmountStr := c.Query("newChargeAmount")
-	newAmount, err := strconv.Atoi(newChargeAmountStr)
-
-	if wfId != "" && err == nil {
-		err := client.SignalWorkflow(c.Request.Context(), &subscription.SubscriptionWorkflow{}, wfId, "", subscription.SignalUpdateBillingPeriodChargeAmount, newAmount)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, iwf.GetOpenApiErrorBody(err))
-		} else {
-			c.JSON(http.StatusOK, struct{}{})
-		}
-		return
-	}
-	c.JSON(http.StatusBadRequest, "must provide correct workflowId and newChargeAmount via URL parameter")
 }
 
 func apiV1WorkflowStateStart(c *gin.Context) {

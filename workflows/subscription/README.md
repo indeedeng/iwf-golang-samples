@@ -4,7 +4,7 @@ This subscription workflow is to match the use case described in
 * [Temporal Java Sample](https://github.com/temporalio/subscription-workflow-project-template-java)
 * [Cadence Java example](https://cadenceworkflow.io/docs/concepts/workflows/#example)
 
-#### Use case statement
+## Use case statement
 Build an application for a limited time Subscription (eg a 36 month Phone plan) that satisfies these conditions:
 
 1. When the user signs up, send a welcome email and start a free trial for **TrialPeriod**.
@@ -22,7 +22,10 @@ Build an application for a limited time Subscription (eg a 36 month Phone plan) 
 
 Of course, this all has to be fault tolerant, scalable to millions of customers, testable, maintainable, and observable.
 
-#### How to run
+## Controller
+And controller is a very thin layer of calling iWF client APIs and workflow RPC stub APIs. See [subscriptionController](../../cmd/server/iwf/subscription_controller.go).
+
+## How to run
 
 
 To start a subscription workflow:
@@ -41,5 +44,6 @@ To cancel the subscription:
 To describe the subscription:
 * Open http://localhost:8803/subscription/describe?workflowId=<TheWorkflowId>
 
-It's recommended to use a iWF state diagram to visualize the workflow design like this:
+This is a iWF state diagram to visualize the workflow design:
 ![subscription state diagram](https://user-images.githubusercontent.com/4523955/217110240-5dfe1d33-0b7c-49f2-8c12-b0d91c4eb970.png)
+
