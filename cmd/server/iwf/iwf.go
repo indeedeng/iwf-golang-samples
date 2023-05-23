@@ -24,6 +24,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/indeedeng/iwf-golang-samples/workflows"
+	"github.com/indeedeng/iwf-golang-samples/workflows/engagement"
 	"github.com/indeedeng/iwf-golang-samples/workflows/subscription"
 	"github.com/indeedeng/iwf-golang-sdk/gen/iwfidl"
 	"github.com/indeedeng/iwf-golang-sdk/iwf"
@@ -72,6 +73,12 @@ func startWorkflowWorker() (closeFunc func()) {
 	router.POST(iwf.WorkflowStateExecuteApi, apiV1WorkflowStateDecide)
 	router.POST(iwf.WorkflowWorkerRPCAPI, apiV1WorkflowWorkerRpc)
 
+	engagementInput := engagement.EngagementInput{
+		EmployerId:  "test-employer-id",
+		JobSeekerId: "test-jobSeeker-id",
+		Notes:       "test-notes",
+	}
+
 	customer := subscription.Customer{
 		FirstName: "Quanzheng",
 		LastName:  "Long",
@@ -89,6 +96,13 @@ func startWorkflowWorker() (closeFunc func()) {
 	router.GET("/subscription/cancel", cancelSubscription)
 	router.GET("/subscription/updateChargeAmount", updateSubscriptionChargeAmount)
 	router.GET("/subscription/describe", descSubscription)
+
+	router.GET("/engagement/start", startWorklfow(&engagement.EngagementWorkflow{}, engagementInput))
+	router.GET("/engagement/describe", descEngagement)
+	router.GET("/engagement/optout", optOutReminder)
+	router.GET("/engagement/decline", declineEngagement)
+	router.GET("/engagement/accept", acceptEngagement)
+	router.GET("/engagement/list", listEngagements)
 
 	wfServer := &http.Server{
 		Addr:    ":" + iwf.DefaultWorkerPort,

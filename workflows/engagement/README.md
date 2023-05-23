@@ -86,7 +86,7 @@ cadence adm cl asa --search_attr_key LastUpdateTimeMillis --search_attr_type 2
 * decline API: http://localhost:8803/engagement/decline?workflowId=<TODO>&notes=%22not%20interested%22
 * accept API: http://localhost:8803/engagement/accept?workflowId=<TODO>&notes=%27accept%27
 * search API, use queries like:
-  * ['EmployerId="test-employer" ORDER BY LastUpdateTimeMillis '](http://localhost:8803/engagement/list?query=<TODO>)
-  * ['EmployerId="test-employer"'](http://localhost:8803/engagement/list?query=<TODO>)
-  * ['EmployerId="test-employer" AND EngagementStatus="INITIATED"'](http://localhost:8803/engagement/list?query=<TODO>)
+  * ['EmployerId="test-employer-id" ORDER BY LastUpdateTimeMillis '](http://localhost:8803/engagement/list?query=<TODO>)
+  * ['EmployerId="test-employer-id"'](http://localhost:8803/engagement/list?query=<TODO>)
+  * ['EmployerId="test-employer-id" AND EngagementStatus="INITIATED"'](http://localhost:8803/engagement/list?query=<TODO>)
   * etc

@@ -12,7 +12,7 @@ type SubscriptionWorkflow struct {
 	svc service.MyService
 }
 
-func NewSubscriptionWorkflow(svc service.MyService) *SubscriptionWorkflow {
+func NewSubscriptionWorkflow(svc service.MyService) iwf.ObjectWorkflow {
 	return &SubscriptionWorkflow{
 		svc: svc,
 	}
