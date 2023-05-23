@@ -21,6 +21,7 @@
 package iwf
 
 import (
+	"context"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/indeedeng/iwf-golang-samples/workflows"
@@ -84,10 +85,11 @@ func startWorkflowWorker() (closeFunc func()) {
 			BillingPeriodCharge: 100,
 		},
 	}
-	
+
 	router.GET("/subscription/start", startWorklfow(&subscription.SubscriptionWorkflow{}, customer))
 	router.GET("/subscription/cancel", cancelSubscription)
 	router.GET("/subscription/updateChargeAmount", updateSubscriptionChargeAmount)
+	router.GET("/subscription/describe", descSubscription)
 
 	wfServer := &http.Server{
 		Addr:    ":" + iwf.DefaultWorkerPort,
@@ -122,6 +124,22 @@ func cancelSubscription(c *gin.Context) {
 			c.JSON(http.StatusInternalServerError, err.Error())
 		} else {
 			c.JSON(http.StatusOK, struct{}{})
+		}
+		return
+	}
+	c.JSON(http.StatusBadRequest, "must provide workflowId via URL parameter")
+}
+
+func descSubscription(c *gin.Context) {
+	wfId := c.Query("workflowId")
+	if wfId != "" {
+		wf := subscription.SubscriptionWorkflow{}
+		var rpcOutput subscription.Subscription
+		err := client.InvokeRPC(context.Background(), wfId, "", wf.Describe, nil, &rpcOutput)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, err.Error())
+		} else {
+			c.JSON(http.StatusOK, rpcOutput)
 		}
 		return
 	}

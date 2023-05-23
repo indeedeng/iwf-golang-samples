@@ -46,7 +46,14 @@ func (b SubscriptionWorkflow) GetCommunicationSchema() []iwf.CommunicationMethod
 	return []iwf.CommunicationMethodDef{
 		iwf.SignalChannelDef(SignalCancelSubscription),
 		iwf.SignalChannelDef(SignalUpdateBillingPeriodChargeAmount),
+		iwf.RPCMethodDef(b.Describe, nil),
 	}
+}
+
+func (b SubscriptionWorkflow) Describe(ctx iwf.WorkflowContext, input iwf.Object, persistence iwf.Persistence, communication iwf.Communication) (interface{}, error) {
+	var customer Customer
+	persistence.GetDataAttribute(keyCustomer, &customer)
+	return customer.Subscription, nil
 }
 
 type Subscription struct {
