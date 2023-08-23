@@ -104,6 +104,10 @@ func startWorkflowWorker() (closeFunc func()) {
 	router.GET("/engagement/accept", acceptEngagement)
 	router.GET("/engagement/list", listEngagements)
 
+	router.GET("/microservice/start", startMicroserviceWorkflow)
+	router.GET("/microservice/swap", swapDataMicroserviceWorkflow)
+	router.GET("/microservice/signal", signalMicroserviceWorkflow)
+
 	wfServer := &http.Server{
 		Addr:    ":" + iwf.DefaultWorkerPort,
 		Handler: router,

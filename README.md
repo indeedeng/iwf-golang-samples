@@ -14,6 +14,9 @@ _Note that by default this project will listen on 8803 port(default worker port 
 
 ## Product Use case samples
 
+### [Microservice orchestration](./workflows/microservices)
+This is the code that is [shown in iWF server as an example of microservice orchestration](https://github.com/indeedeng/iwf#example-microservice-orchestration).
+
 ### [JobSeeker Engagement workflow](./workflows/engagement)
 <img width="709" alt="Screenshot 2023-04-21 at 8 53 25 AM" src="https://user-images.githubusercontent.com/4523955/233680837-6a6267a0-4b31-419e-87f0-667bb48582d1.png">
 This engagement workflow is for: 

@@ -33,6 +33,54 @@ func (m *MockMyService) EXPECT() *MockMyServiceMockRecorder {
 	return m.recorder
 }
 
+// CallAPI1 mocks base method.
+func (m *MockMyService) CallAPI1(data string) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "CallAPI1", data)
+}
+
+// CallAPI1 indicates an expected call of CallAPI1.
+func (mr *MockMyServiceMockRecorder) CallAPI1(data interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CallAPI1", reflect.TypeOf((*MockMyService)(nil).CallAPI1), data)
+}
+
+// CallAPI2 mocks base method.
+func (m *MockMyService) CallAPI2(data string) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "CallAPI2", data)
+}
+
+// CallAPI2 indicates an expected call of CallAPI2.
+func (mr *MockMyServiceMockRecorder) CallAPI2(data interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CallAPI2", reflect.TypeOf((*MockMyService)(nil).CallAPI2), data)
+}
+
+// CallAPI3 mocks base method.
+func (m *MockMyService) CallAPI3(data string) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "CallAPI3", data)
+}
+
+// CallAPI3 indicates an expected call of CallAPI3.
+func (mr *MockMyServiceMockRecorder) CallAPI3(data interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CallAPI3", reflect.TypeOf((*MockMyService)(nil).CallAPI3), data)
+}
+
+// CallAPI4 mocks base method.
+func (m *MockMyService) CallAPI4(data string) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "CallAPI4", data)
+}
+
+// CallAPI4 indicates an expected call of CallAPI4.
+func (mr *MockMyServiceMockRecorder) CallAPI4(data interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CallAPI4", reflect.TypeOf((*MockMyService)(nil).CallAPI4), data)
+}
+
 // ChargeUser mocks base method.
 func (m *MockMyService) ChargeUser(email, customerId string, amount int) {
 	m.ctrl.T.Helper()
