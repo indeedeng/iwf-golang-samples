@@ -76,6 +76,11 @@ func (i createDebitMemoState) Execute(
 		return nil, err
 	}
 
+	// uncomment this to test error case 
+	//if true {
+	//	return nil, fmt.Errorf("test error for testing error handling")
+	//}
+
 	return iwf.SingleNextState(&debitState{}, request), nil
 }
 
@@ -83,6 +88,8 @@ func (i createDebitMemoState) GetStateOptions() *iwf.StateOptions {
 	return &iwf.StateOptions{
 		ExecuteApiRetryPolicy: &iwfidl.RetryPolicy{
 			MaximumAttemptsDurationSeconds: ptr.Any(int32(3600)),
+			// uncomment this to test a short retry
+			//MaximumAttemptsDurationSeconds: ptr.Any(int32(3)),
 		},
 		ExecuteApiFailureProceedState: &compensateState{},
 	}
@@ -207,7 +214,7 @@ func (i compensateState) Execute(
 		return nil, err
 	}
 
-	return iwf.GracefulCompleteWorkflow(fmt.Sprintf("transfer is done from %v to %v for amount %v", request.FromAccount, request.ToAccount, request.Amount)), nil
+	return iwf.ForceFailWorkflow(fmt.Sprintf("transfer has failed: from %v to %v for amount %v", request.FromAccount, request.ToAccount, request.Amount)), nil
 }
 
 func (i compensateState) GetStateOptions() *iwf.StateOptions {
