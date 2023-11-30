@@ -14,6 +14,10 @@ _Note that by default this project will listen on 8803 port(default worker port 
 
 ## Product Use case samples
 
+### [Money Transfer Workflow/SAGA Patten](./workflows/moneytransfer)
+This example shows how to transfer money from one account to another account.
+The transfer involves multiple steps. When any step fails, the whole transfer is canceled with some compensation steps.
+
 ### [Microservice orchestration](./workflows/microservices)
 This is the code that is [shown in iWF server as an example of microservice orchestration](https://github.com/indeedeng/iwf#example-microservice-orchestration).
 
