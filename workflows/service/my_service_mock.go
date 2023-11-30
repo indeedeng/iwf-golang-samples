@@ -93,6 +93,76 @@ func (mr *MockMyServiceMockRecorder) ChargeUser(email, customerId, amount interf
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ChargeUser", reflect.TypeOf((*MockMyService)(nil).ChargeUser), email, customerId, amount)
 }
 
+// CheckBalance mocks base method.
+func (m *MockMyService) CheckBalance(account string, amount int) bool {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CheckBalance", account, amount)
+	ret0, _ := ret[0].(bool)
+	return ret0
+}
+
+// CheckBalance indicates an expected call of CheckBalance.
+func (mr *MockMyServiceMockRecorder) CheckBalance(account, amount interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckBalance", reflect.TypeOf((*MockMyService)(nil).CheckBalance), account, amount)
+}
+
+// CreateCreditMemo mocks base method.
+func (m *MockMyService) CreateCreditMemo(account string, amount int, notes string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateCreditMemo", account, amount, notes)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CreateCreditMemo indicates an expected call of CreateCreditMemo.
+func (mr *MockMyServiceMockRecorder) CreateCreditMemo(account, amount, notes interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateCreditMemo", reflect.TypeOf((*MockMyService)(nil).CreateCreditMemo), account, amount, notes)
+}
+
+// CreateDebitMemo mocks base method.
+func (m *MockMyService) CreateDebitMemo(account string, amount int, notes string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateDebitMemo", account, amount, notes)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CreateDebitMemo indicates an expected call of CreateDebitMemo.
+func (mr *MockMyServiceMockRecorder) CreateDebitMemo(account, amount, notes interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateDebitMemo", reflect.TypeOf((*MockMyService)(nil).CreateDebitMemo), account, amount, notes)
+}
+
+// Credit mocks base method.
+func (m *MockMyService) Credit(account string, amount int) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Credit", account, amount)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Credit indicates an expected call of Credit.
+func (mr *MockMyServiceMockRecorder) Credit(account, amount interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Credit", reflect.TypeOf((*MockMyService)(nil).Credit), account, amount)
+}
+
+// Debit mocks base method.
+func (m *MockMyService) Debit(account string, amount int) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Debit", account, amount)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Debit indicates an expected call of Debit.
+func (mr *MockMyServiceMockRecorder) Debit(account, amount interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Debit", reflect.TypeOf((*MockMyService)(nil).Debit), account, amount)
+}
+
 // SendEmail mocks base method.
 func (m *MockMyService) SendEmail(recipient, subject, content string) {
 	m.ctrl.T.Helper()
@@ -103,6 +173,62 @@ func (m *MockMyService) SendEmail(recipient, subject, content string) {
 func (mr *MockMyServiceMockRecorder) SendEmail(recipient, subject, content interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SendEmail", reflect.TypeOf((*MockMyService)(nil).SendEmail), recipient, subject, content)
+}
+
+// UndoCreateCreditMemo mocks base method.
+func (m *MockMyService) UndoCreateCreditMemo(account string, amount int, notes string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UndoCreateCreditMemo", account, amount, notes)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UndoCreateCreditMemo indicates an expected call of UndoCreateCreditMemo.
+func (mr *MockMyServiceMockRecorder) UndoCreateCreditMemo(account, amount, notes interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UndoCreateCreditMemo", reflect.TypeOf((*MockMyService)(nil).UndoCreateCreditMemo), account, amount, notes)
+}
+
+// UndoCreateDebitMemo mocks base method.
+func (m *MockMyService) UndoCreateDebitMemo(account string, amount int, notes string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UndoCreateDebitMemo", account, amount, notes)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UndoCreateDebitMemo indicates an expected call of UndoCreateDebitMemo.
+func (mr *MockMyServiceMockRecorder) UndoCreateDebitMemo(account, amount, notes interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UndoCreateDebitMemo", reflect.TypeOf((*MockMyService)(nil).UndoCreateDebitMemo), account, amount, notes)
+}
+
+// UndoCredit mocks base method.
+func (m *MockMyService) UndoCredit(account string, amount int) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UndoCredit", account, amount)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UndoCredit indicates an expected call of UndoCredit.
+func (mr *MockMyServiceMockRecorder) UndoCredit(account, amount interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UndoCredit", reflect.TypeOf((*MockMyService)(nil).UndoCredit), account, amount)
+}
+
+// UndoDebit mocks base method.
+func (m *MockMyService) UndoDebit(account string, amount int) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UndoDebit", account, amount)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UndoDebit indicates an expected call of UndoDebit.
+func (mr *MockMyServiceMockRecorder) UndoDebit(account, amount interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UndoDebit", reflect.TypeOf((*MockMyService)(nil).UndoDebit), account, amount)
 }
 
 // UpdateExternalSystem mocks base method.

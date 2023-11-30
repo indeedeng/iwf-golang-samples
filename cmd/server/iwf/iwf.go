@@ -108,6 +108,8 @@ func startWorkflowWorker() (closeFunc func()) {
 	router.GET("/microservice/swap", swapDataMicroserviceWorkflow)
 	router.GET("/microservice/signal", signalMicroserviceWorkflow)
 
+	router.GET("/moneytransfer/start", startMoneyTransferWorkflow)
+
 	wfServer := &http.Server{
 		Addr:    ":" + iwf.DefaultWorkerPort,
 		Handler: router,
