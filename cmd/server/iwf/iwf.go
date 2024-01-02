@@ -110,6 +110,9 @@ func startWorkflowWorker() (closeFunc func()) {
 
 	router.GET("/moneytransfer/start", startMoneyTransferWorkflow)
 
+	router.GET("/polling/start", startPollingWorkflow)
+	router.GET("/polling/complete", signalPollingWorkflow)
+
 	wfServer := &http.Server{
 		Addr:    ":" + iwf.DefaultWorkerPort,
 		Handler: router,

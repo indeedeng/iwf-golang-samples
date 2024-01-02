@@ -39,3 +39,9 @@ This [Subscription workflow](https://github.com/indeedeng/iwf-golang-samples/tre
 * [Temporal Java Sample](https://github.com/temporalio/subscription-workflow-project-template-java)
 * [Cadence Java example](https://cadenceworkflow.io/docs/concepts/workflows/#example)
 
+
+### [Task orchestration with polling & signal](./workflows/polling)
+Orchestrating three services:
+* Task A: receive a signal when completing
+* Task B: receive a signal when completing
+* Task C: polling until completion
