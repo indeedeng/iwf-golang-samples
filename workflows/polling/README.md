@@ -6,7 +6,7 @@
   * pollingCompletionThreshold means how many times the workflow will poll before complete the polling task C
 * Signal the workflow to complete task A and B:
   * complete task A: `http://localhost:8803/polling/complete?workflowId=test1&channel=taskACompleted`
-  * complete task B: `http://localhost:8803/polling/complete?workflowId=test1&channel=taskACompleted`
+  * complete task B: `http://localhost:8803/polling/complete?workflowId=test1&channel=taskBCompleted`
   * alternatively you can signal the workflow in WebUI manually 
 * Watch in WebUI `http://localhost:8233/namespaces/default/workflows`
 * Modify the pollingCompletionThreshold and see how the workflow complete task C automatically
