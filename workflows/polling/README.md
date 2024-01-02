@@ -10,3 +10,10 @@
   * alternatively you can signal the workflow in WebUI manually 
 * Watch in WebUI `http://localhost:8233/namespaces/default/workflows`
 * Modify the pollingCompletionThreshold and see how the workflow complete task C automatically
+
+
+### Screenshots
+* The workflow should automatically continue As New after every 100 actions
+<img width="773" alt="Screenshot 2024-01-01 at 10 06 11 PM" src="https://github.com/indeedeng/iwf-golang-samples/assets/4523955/bca7e02c-f24c-4288-9fc6-1cca74a7c1d3">
+* You can use query handler to look at the current data like this
+<img width="618" alt="Screenshot 2024-01-01 at 10 08 41 PM" src="https://github.com/indeedeng/iwf-golang-samples/assets/4523955/2909b494-5b05-404a-a047-31394eb4b43c">
